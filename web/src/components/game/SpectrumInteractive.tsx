@@ -4,9 +4,16 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { CAII_REST, hashString, mulberry32, randn } from "@/lib/gameMath";
 import type { SpecTemplateRow, SupernovaRow } from "@/lib/types";
 
-type Props = { sn: SupernovaRow; specTemplate: SpecTemplateRow[]; onLocked: () => void };
+type Props = {
+  sn: SupernovaRow;
+  specTemplate: SpecTemplateRow[];
+  /** Called with z_meas = λ_line / λ_rest − 1 when the player locks. */
+  onLocked: (zMeasured: number) => void;
+  /** Live z_meas while dragging (updates Hubble x-guide). */
+  onZMeasChange?: (zMeasured: number) => void;
+};
 
-export function SpectrumInteractive({ sn, specTemplate, onLocked }: Props) {
+export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dragging, setDragging] = useState(false);
 
@@ -31,7 +38,12 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked }: Props) {
   }, [mid]);
 
   const zMeas = lineLambda / CAII_REST - 1;
+  const stretch = lineLambda / CAII_REST;
   const ok = Math.abs(lineLambda - sn.lambda_CaII) < 20;
+
+  useEffect(() => {
+    onZMeasChange?.(zMeas);
+  }, [zMeas, onZMeasChange]);
 
   useLayoutEffect(() => {
     const cv = canvasRef.current;
@@ -96,19 +108,45 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked }: Props) {
         }}
         onPointerUp={() => setDragging(false)}
       />
-      <p className="text-sm text-slate-300">
-        Line center: <span className="font-mono text-sky-300">{lineLambda.toFixed(1)} Å</span> → z<sub>meas</sub> ={" "}
-        <span className="font-mono text-sky-300">{zMeas.toFixed(4)}</span>
-        <span className="text-slate-500">
-          {" "}
-          (Hubble diagram uses precomputed z<sub>obs</sub> = {sn.z_obs.toFixed(4)})
-        </span>
+      <p className="text-base text-slate-200 md:text-lg">
+        Line you marked: <span className="font-mono text-sky-300">{lineLambda.toFixed(1)} Å</span> (observed in the telescope). That implies z<sub>meas</sub> ={" "}
+        <span className="font-mono text-sky-300">{zMeas.toFixed(4)}</span> using the steps below. The{" "}
+        <strong className="text-slate-100">vertical guide</strong> on the Hubble panel tracks this z. After you lock, the final dot still uses the survey’s z<sub>obs</sub> ={" "}
+        <span className="font-mono text-slate-300">{sn.z_obs.toFixed(4)}</span>.
       </p>
+
+      <div className="rounded-xl border border-white/10 bg-slate-950/70 p-4 md:p-5">
+        <h4 className="text-base font-semibold text-slate-100 md:text-lg">How that Ångström value becomes a redshift</h4>
+        <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed text-slate-300 md:text-lg">
+          <li>
+            <strong className="text-slate-100">Rest wavelength.</strong> In a lab on Earth, the calcium “K” line we are matching sits near{" "}
+            <span className="font-mono text-amber-200/90">{CAII_REST} Å</span> in the rest frame (this walkthrough fixes that value so everyone uses the same ruler).
+          </li>
+          <li>
+            <strong className="text-slate-100">Cosmic stretch.</strong> Expansion between the supernova and us stretches every wavelength by the same factor{" "}
+            <span className="font-mono text-sky-200/90">(1 + z)</span>. So the wavelength we <em>observe</em> is{" "}
+            <span className="font-mono text-slate-200">λ<sub>obs</sub> = λ<sub>rest</sub> × (1 + z)</span>.
+          </li>
+          <li>
+            <strong className="text-slate-100">Solve for z.</strong> Rearrange:{" "}
+            <span className="font-mono text-slate-200">z = λ<sub>obs</sub> / λ<sub>rest</sub> − 1</span>. Here{" "}
+            <span className="font-mono text-slate-200">
+              z<sub>meas</sub> = {lineLambda.toFixed(1)} / {CAII_REST} − 1 = {stretch.toFixed(4)} − 1
+            </span>{" "}
+            = <span className="font-mono text-sky-300">{zMeas.toFixed(4)}</span>. So the spectrum is stretched to{" "}
+            <span className="font-mono text-sky-200/90">{stretch.toFixed(3)}×</span> its rest length along the wavelength axis.
+          </li>
+        </ol>
+        <p className="mt-3 text-sm text-slate-500 md:text-base">
+          Intuition: if the dip were exactly at {CAII_REST} Å, you would have z = 0 (no stretch). The farther the dip slides to the right, the larger (1 + z) is, and the farther away / deeper in cosmic time the supernova is.
+        </p>
+      </div>
+
       <button
         type="button"
         disabled={!ok}
-        onClick={onLocked}
-        className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+        onClick={() => onLocked(zMeas)}
+        className="rounded-lg bg-sky-700 px-5 py-2.5 text-base font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
       >
         Lock redshift
       </button>

@@ -2,13 +2,25 @@
 
 import { useEffect, useRef } from "react";
 import { MU_AXIS, Z_AXIS } from "@/lib/gameMath";
-import { muResidualCurve, residualRange, xHubble, yHubble, yResid } from "@/lib/hubbleMath";
+import {
+  interpMuAtZ,
+  muResidualCurve,
+  residualRange,
+  residualRangeWithPreview,
+  xHubble,
+  yHubble,
+  yResid,
+} from "@/lib/hubbleMath";
 import type { GameBundle, Observation } from "@/lib/types";
 
 type Props = {
   curves: GameBundle["curves"];
   observations: Observation[];
   highlightLCDM: boolean;
+  /** From spectrum: z_meas = λ_obs / λ_rest − 1 (guides x-axis). */
+  previewZ: number | null;
+  /** From light curve: μ ≈ m_peak − M (guides y-axis). */
+  previewMu: number | null;
 };
 
 function setupCanvas(canvas: HTMLCanvasElement, cssH: number) {
@@ -27,9 +39,14 @@ function setupCanvas(canvas: HTMLCanvasElement, cssH: number) {
   return { ctx, w: cssW, h: cssH, dpr };
 }
 
-export function HubbleDualPanel({ curves, observations, highlightLCDM }: Props) {
+export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ, previewMu }: Props) {
   const refH = useRef<HTMLCanvasElement>(null);
   const refR = useRef<HTMLCanvasElement>(null);
+
+  const previewResidual =
+    previewZ != null && previewMu != null && Number.isFinite(previewZ) && Number.isFinite(previewMu)
+      ? previewMu - interpMuAtZ(curves.open_matter, previewZ)
+      : null;
 
   useEffect(() => {
     const canvas = refH.current;
@@ -108,13 +125,38 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM }: Props) 
       ctx.fill();
     }
 
+    if (previewZ != null && Number.isFinite(previewZ)) {
+      const xv = padL + xHubble(previewZ, iw);
+      ctx.save();
+      ctx.strokeStyle = "rgba(110, 200, 255, 0.85)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(xv, padT);
+      ctx.lineTo(xv, padT + ih);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (previewMu != null && Number.isFinite(previewMu)) {
+      const yh = padT + yHubble(previewMu, ih);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 200, 120, 0.9)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(padL, yh);
+      ctx.lineTo(padL + iw, yh);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.fillStyle = "#9aa3b2";
     ctx.font = "11px system-ui";
     ctx.textAlign = "left";
     ctx.fillText("μ (distance modulus)", padL, padT - 2);
     ctx.textAlign = "center";
     ctx.fillText(`redshift z (log ${Z_AXIS.min}–${Z_AXIS.max})`, padL + iw / 2, h - 6);
-  }, [curves, observations, highlightLCDM]);
+  }, [curves, observations, highlightLCDM, previewZ, previewMu]);
 
   useEffect(() => {
     const canvas = refR.current;
@@ -130,7 +172,10 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM }: Props) 
       padB = 28;
     const iw = w - padL - padR;
     const ih = h - padT - padB;
-    const { lo, hi } = residualRange(observations);
+    const { lo, hi } =
+      previewResidual != null && Number.isFinite(previewResidual)
+        ? residualRangeWithPreview(observations, previewResidual)
+        : residualRange(observations);
 
     for (let i = 0; i <= 4; i++) {
       const r = lo + (i / 4) * (hi - lo);
@@ -182,14 +227,48 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM }: Props) 
       ctx.fill();
     }
 
+    if (previewZ != null && Number.isFinite(previewZ)) {
+      const xv = padL + xHubble(previewZ, iw);
+      ctx.save();
+      ctx.strokeStyle = "rgba(110, 200, 255, 0.85)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(xv, padT);
+      ctx.lineTo(xv, padT + ih);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (previewResidual != null && Number.isFinite(previewResidual)) {
+      const yr = padT + yResid(previewResidual, ih, lo, hi);
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 200, 120, 0.9)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(padL, yr);
+      ctx.lineTo(padL + iw, yr);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.fillStyle = "#9aa3b2";
     ctx.font = "10px system-ui";
     ctx.textAlign = "left";
     ctx.fillText("Δμ vs open matter", padL, padT - 2);
-  }, [curves, observations, highlightLCDM]);
+  }, [curves, observations, highlightLCDM, previewZ, previewResidual]);
+
+  const showPreviewNote = previewZ != null || previewMu != null;
 
   return (
     <div className="space-y-2 rounded-xl border border-white/10 bg-slate-950/80 p-3">
+      {showPreviewNote ? (
+        <p className="text-[11px] leading-snug text-sky-200/90">
+          Dashed guides: <span className="text-sky-300">vertical</span> = your locked <span className="font-mono">z</span> on the x-axis;{" "}
+          <span className="text-amber-200">horizontal</span> = your <span className="font-mono">μ = m − M</span> on the y-axis (residual panel uses Δμ vs open matter at that{" "}
+          <span className="font-mono">z</span>).
+        </p>
+      ) : null}
       <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Distance modulus vs redshift</div>
       <canvas ref={refH} className="h-[280px] w-full rounded-lg bg-[#0a0d12]" />
       <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Residuals vs Ω_m=0.3, Ω_Λ=0</div>

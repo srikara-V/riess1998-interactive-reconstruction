@@ -4,9 +4,20 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { hashString, interpolateLC, M_REF, mulberry32, randn } from "@/lib/gameMath";
 import type { LCTemplateRow, SupernovaRow } from "@/lib/types";
 
-type Props = { sn: SupernovaRow; lcTemplate: LCTemplateRow[]; onContinue: () => void };
+type Props = {
+  sn: SupernovaRow;
+  lcTemplate: LCTemplateRow[];
+  /** Fires when the player reads the peak (before adding the point). */
+  onPeakRead?: (payload: { m: number; muFromM: number }) => void;
+  onContinue: () => void;
+};
 
-export function LightcurveInteractive({ sn, lcTemplate, onContinue }: Props) {
+const padL = 58;
+const padR = 16;
+const padT = 32;
+const padB = 46;
+
+export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showTemplate, setShowTemplate] = useState(false);
   const [showPeak, setShowPeak] = useState(false);
@@ -34,7 +45,6 @@ export function LightcurveInteractive({ sn, lcTemplate, onContinue }: Props) {
   const mPeak = sn.m_apparent;
   const mMin = Math.min(...pts.map((p) => p.mObs), mPeak) - 0.25;
   const mMax = Math.max(...pts.map((p) => p.mObs), mPeak) + 0.35;
-  const pad = 18;
 
   useLayoutEffect(() => {
     const cv = canvasRef.current;
@@ -43,29 +53,78 @@ export function LightcurveInteractive({ sn, lcTemplate, onContinue }: Props) {
     if (!ctx) return;
     const w = cv.width;
     const h = cv.height;
-    const iw = w - pad * 2;
-    const ih = h - pad * 2;
-    const yLc = (m: number) => pad + ih * ((m - mMin) / (mMax - mMin || 1));
+    const iw = w - padL - padR;
+    const ih = h - padT - padB;
+    const yLc = (m: number) => padT + ih * ((m - mMin) / (mMax - mMin || 1));
+    const xT = (t: number) => padL + ((t - tMin) / (tMax - tMin)) * iw;
+
     ctx.fillStyle = "#05070a";
     ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT + ih);
+    ctx.lineTo(padL + iw, padT + ih);
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL, padT + ih);
+    ctx.stroke();
+
     for (let i = 0; i <= 5; i++) {
       const m = mMin + (i / 5) * (mMax - mMin);
       const y = yLc(m);
       ctx.strokeStyle = "rgba(255,255,255,0.06)";
       ctx.beginPath();
-      ctx.moveTo(pad, y);
-      ctx.lineTo(pad + iw, y);
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + iw, y);
       ctx.stroke();
       ctx.fillStyle = "#6b7788";
       ctx.font = "10px system-ui";
-      ctx.fillText(m.toFixed(2), 2, y + 3);
+      ctx.textAlign = "right";
+      ctx.fillText(m.toFixed(2), padL - 8, y + 3);
     }
+    ctx.textAlign = "start";
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.fillText("↑ brighter", padL + 4, padT + 2);
+
+    ctx.save();
+    ctx.translate(14, padT + ih / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Apparent magnitude (m)", 0, 0);
+    ctx.restore();
+
+    const xTicks = [-20, -10, 0, 10, 20, 30, 40, 45];
+    ctx.fillStyle = "#6b7788";
+    ctx.font = "9px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    for (const tv of xTicks) {
+      const x = xT(tv);
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.beginPath();
+      ctx.moveTo(x, padT + ih);
+      ctx.lineTo(x, padT + ih + 4);
+      ctx.stroke();
+      ctx.fillText(tv === 0 ? "0" : String(tv), x, padT + ih + 15);
+    }
+    ctx.textAlign = "start";
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Days relative to maximum brightness", padL + iw / 2, h - 10);
+    ctx.textAlign = "start";
+
     if (showTemplate) {
       ctx.beginPath();
       for (let t = tMin; t <= tMax; t += 1) {
         const dm = interpolateLC(lcTemplate, t);
         const m = mPeak + dm;
-        const x = pad + ((t - tMin) / (tMax - tMin)) * iw;
+        const x = xT(t);
         const y = yLc(m);
         if (t === tMin) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -73,32 +132,73 @@ export function LightcurveInteractive({ sn, lcTemplate, onContinue }: Props) {
       ctx.strokeStyle = "rgba(110,181,255,0.45)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
+
+      const dm0 = interpolateLC(lcTemplate, 0);
+      const peakX = xT(0);
+      const peakY = yLc(mPeak + dm0);
+      ctx.beginPath();
+      ctx.arc(peakX, peakY, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(251,191,36,0.95)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(251,191,36,0.65)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+
+      const lx = Math.min(peakX + 52, padL + iw - 8);
+      const ly = Math.max(peakY - 38, padT + 14);
+      ctx.strokeStyle = "rgba(251,191,36,0.5)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(peakX + 5, peakY - 4);
+      ctx.lineTo(lx - 4, ly + 12);
+      ctx.stroke();
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "bold 11px system-ui,sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("peak m → distance", lx, ly);
+      ctx.textAlign = "start";
     }
     for (const p of pts) {
-      const x = pad + ((p.t - tMin) / (tMax - tMin)) * iw;
+      const x = xT(p.t);
       const y = yLc(p.mObs);
       ctx.fillStyle = "#e8edf4";
       ctx.beginPath();
       ctx.arc(x, y, 3.2, 0, Math.PI * 2);
       ctx.fill();
     }
-  }, [lcTemplate, mMax, mMin, mPeak, pad, pts, showTemplate, tMax, tMin]);
+  }, [lcTemplate, mMax, mMin, mPeak, pts, showTemplate, tMax, tMin]);
 
   const muShown = mPeak - M_REF;
 
   return (
     <div className="space-y-3">
       <canvas ref={canvasRef} width={640} height={220} className="w-full max-w-[640px] rounded-lg border border-white/10 bg-black" />
-      <p className="text-xs text-slate-500">Phase in days relative to B maximum · magnitudes increase upward (fainter up).</p>
+      <div className="max-w-[640px] space-y-3 rounded-xl border border-white/10 bg-slate-950/70 p-4 md:p-5">
+        <p className="text-base leading-relaxed text-slate-200 md:text-lg">
+          <strong className="text-slate-50">What the white dots are:</strong> each dot is <strong>one night’s measurement</strong> of the{" "}
+          <em>same</em> supernova — same explosion, different evening. You keep pointing the telescope at the field, record how bright it looks, and move on to the next cadence. The horizontal axis is <em>which</em> night (relative to brightest night); the vertical axis is <em>how bright</em> it looked that night. Together they sketch one object brightening toward a peak and then fading.
+        </p>
+        <p className="text-base leading-relaxed text-slate-200 md:text-lg">
+          <strong className="text-slate-50">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-sky-200/90">m</span> at the{" "}
+          <strong>peak</strong> (around day 0) — the moment it was intrinsically hottest as seen from Earth. After you fit the blue template, the <strong className="text-amber-200/90">orange dot</strong> marks that peak; the label reminds you that <strong className="text-slate-50">this one m</strong> is what feeds{" "}
+          <span className="font-mono text-slate-200">μ = m − M</span>. All the other dots exist so you are not guessing the peak from a lucky single snapshot halfway down the decline.
+        </p>
+        <p className="text-sm text-slate-500 md:text-base">
+          Reminder: magnitudes run backward — <strong className="text-slate-300">smaller m = brighter</strong> (same as the “↑ brighter” cue on the plot).
+        </p>
+      </div>
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setShowTemplate(true)} className="rounded-lg border border-white/15 bg-slate-800 px-3 py-1.5 text-sm">
+        <button type="button" onClick={() => setShowTemplate(true)} className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base">
           Fit template
         </button>
         <button
           type="button"
           disabled={!showTemplate}
-          onClick={() => setShowPeak(true)}
-          className="rounded-lg border border-white/15 bg-slate-800 px-3 py-1.5 text-sm disabled:opacity-40"
+          onClick={() => {
+            setShowPeak(true);
+            onPeakRead?.({ m: mPeak, muFromM: muShown });
+          }}
+          className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base disabled:opacity-40"
         >
           Read peak magnitude
         </button>
@@ -106,16 +206,17 @@ export function LightcurveInteractive({ sn, lcTemplate, onContinue }: Props) {
           type="button"
           disabled={!showPeak}
           onClick={onContinue}
-          className="rounded-lg bg-sky-700 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+          className="rounded-lg bg-sky-700 px-5 py-2.5 text-base font-medium text-white disabled:opacity-40"
         >
           Add to Hubble diagram
         </button>
       </div>
       {showPeak ? (
         <p className="text-sm text-slate-200">
-          Peak <span className="font-mono text-sky-300">m = {mPeak.toFixed(2)}</span> → standardized distance modulus{" "}
-          <span className="font-mono text-sky-300">μ ≈ {muShown.toFixed(2)}</span> using <span className="font-mono">M = {M_REF}</span>. The diagram uses the
-          precomputed noisy <span className="font-mono">μ_obs</span>.
+          Peak <span className="font-mono text-sky-300">m = {mPeak.toFixed(2)}</span> →{" "}
+          <span className="font-mono text-sky-300">μ = m − M ≈ {muShown.toFixed(2)}</span> with <span className="font-mono">M = {M_REF}</span>. The{" "}
+          <strong className="text-amber-200/90">horizontal guide</strong> on the Hubble panel marks this μ. The final plotted point uses the survey’s noisy{" "}
+          <span className="font-mono">μ_obs = {sn.mu_obs.toFixed(2)}</span>.
         </p>
       ) : null}
     </div>

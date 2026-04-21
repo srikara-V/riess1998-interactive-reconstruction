@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Dark Energy Discovery — Supernova Cosmology Lab",
-  description: "Interactive walkthrough of the SCP / High-z pipeline with precomputed Friedmann curves.",
+  description: "Interactive walkthrough of the High-z Supernova Search Team pipeline with precomputed Friedmann curves.",
 };
 
 export default function RootLayout({

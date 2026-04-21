@@ -25,6 +25,32 @@ export function residualRange(obs: Pick<Observation, "residual">[]) {
   return { lo, hi };
 }
 
+/** Linear interpolation of μ_theory(z) along a dense model curve. */
+export function interpMuAtZ(curve: ModelCurveRow[], z: number): number {
+  if (!curve.length) return NaN;
+  if (z <= curve[0].z) return curve[0].mu_theory;
+  const last = curve[curve.length - 1];
+  if (z >= last.z) return last.mu_theory;
+  for (let i = 0; i < curve.length - 1; i++) {
+    const z0 = curve[i].z;
+    const z1 = curve[i + 1].z;
+    if (z1 >= z) {
+      const t = (z - z0) / (z1 - z0);
+      return curve[i].mu_theory + t * (curve[i + 1].mu_theory - curve[i].mu_theory);
+    }
+  }
+  return last.mu_theory;
+}
+
+export function residualRangeWithPreview(obs: Pick<Observation, "residual">[], previewResidual: number | null) {
+  const base = residualRange(obs);
+  if (previewResidual == null || !Number.isFinite(previewResidual)) return base;
+  return {
+    lo: Math.min(base.lo, previewResidual - 0.2),
+    hi: Math.max(base.hi, previewResidual + 0.2),
+  };
+}
+
 export function yResid(r: number, ih: number, lo: number, hi: number) {
   return ih - ((r - lo) / (hi - lo)) * ih;
 }
