@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { CAII_REST, hashString, mulberry32, randn } from "@/lib/gameMath";
+import { HALPHA_REST, hashString, mulberry32, randn } from "@/lib/gameMath";
 import type { SpecTemplateRow, SupernovaRow } from "@/lib/types";
 
 type Props = {
@@ -37,9 +37,9 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
     setLineLambda(mid);
   }, [mid]);
 
-  const zMeas = lineLambda / CAII_REST - 1;
-  const stretch = lineLambda / CAII_REST;
-  const ok = Math.abs(lineLambda - sn.lambda_CaII) < 20;
+  const zMeas = lineLambda / HALPHA_REST - 1;
+  const stretch = lineLambda / HALPHA_REST;
+  const ok = Math.abs(lineLambda - sn.lambda_Halpha) < 20;
 
   useEffect(() => {
     onZMeasChange?.(zMeas);
@@ -92,6 +92,9 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
 
   return (
     <div className="space-y-3">
+      <p className="text-base text-slate-300 md:text-lg">
+        Drag the vertical line to the <strong className="text-slate-100">peak of the Hα emission spike</strong> (compare to your table after locking).
+      </p>
       <canvas
         ref={canvasRef}
         width={640}
@@ -119,8 +122,8 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
         <h4 className="text-base font-semibold text-slate-100 md:text-lg">How that Ångström value becomes a redshift</h4>
         <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed text-slate-300 md:text-lg">
           <li>
-            <strong className="text-slate-100">Rest wavelength.</strong> In a lab on Earth, the calcium “K” line we are matching sits near{" "}
-            <span className="font-mono text-amber-200/90">{CAII_REST} Å</span> in the rest frame (this walkthrough fixes that value so everyone uses the same ruler).
+            <strong className="text-slate-100">Rest wavelength.</strong> In a lab on Earth, the hydrogen Hα line we are matching sits at{" "}
+            <span className="font-mono text-amber-200/90">{HALPHA_REST} Å</span> in the rest frame (this walkthrough fixes that value so everyone uses the same ruler).
           </li>
           <li>
             <strong className="text-slate-100">Cosmic stretch.</strong> Expansion between the supernova and us stretches every wavelength by the same factor{" "}
@@ -131,14 +134,14 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
             <strong className="text-slate-100">Solve for z.</strong> Rearrange:{" "}
             <span className="font-mono text-slate-200">z = λ<sub>obs</sub> / λ<sub>rest</sub> − 1</span>. Here{" "}
             <span className="font-mono text-slate-200">
-              z<sub>meas</sub> = {lineLambda.toFixed(1)} / {CAII_REST} − 1 = {stretch.toFixed(4)} − 1
+              z<sub>meas</sub> = {lineLambda.toFixed(1)} / {HALPHA_REST} − 1 = {stretch.toFixed(4)} − 1
             </span>{" "}
             = <span className="font-mono text-sky-300">{zMeas.toFixed(4)}</span>. So the spectrum is stretched to{" "}
             <span className="font-mono text-sky-200/90">{stretch.toFixed(3)}×</span> its rest length along the wavelength axis.
           </li>
         </ol>
         <p className="mt-3 text-sm text-slate-500 md:text-base">
-          Intuition: if the dip were exactly at {CAII_REST} Å, you would have z = 0 (no stretch). The farther the dip slides to the right, the larger (1 + z) is, and the farther away / deeper in cosmic time the supernova is.
+          Intuition: if the spike were exactly at {HALPHA_REST} Å, you would have z = 0 (no stretch). The farther the peak slides to the right, the larger (1 + z) is, and the farther away / deeper in cosmic time the supernova is.
         </p>
       </div>
 

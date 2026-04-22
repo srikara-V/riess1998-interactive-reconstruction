@@ -1,4 +1,4 @@
-export const CAII_REST = 3934;
+export const HALPHA_REST = 6563;
 export const M_REF = -19.3;
 export const Z_AXIS = { min: 0.01, max: 1.2 };
 export const MU_AXIS = { min: 32, max: 46 };

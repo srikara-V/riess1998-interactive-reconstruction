@@ -6,7 +6,7 @@ export type SupernovaRow = {
   mu_obs: number;
   sigma_mu: number;
   m_apparent: number;
-  lambda_CaII: number;
+  lambda_Halpha: number;
   sequence_order_resolved: number;
   residual_obs_minus_open_matter_at_z_obs: number;
   cumchi2_EdS_after_this_sequence: number;

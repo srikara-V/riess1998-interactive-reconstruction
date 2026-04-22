@@ -9,7 +9,7 @@ import { DiscoveryInteractive } from "./DiscoveryInteractive";
 import { HubbleDualPanel } from "./HubbleDualPanel";
 import { LightcurveInteractive } from "./LightcurveInteractive";
 import { LightcurveModulusIntro } from "./LightcurveModulusIntro";
-import { SpectrumCa2Diagram } from "./SpectrumCa2Diagram";
+import { SpectrumHalphaDiagram } from "./SpectrumHalphaDiagram";
 import { SpectrumInteractive } from "./SpectrumInteractive";
 
 type Phase = "welcome" | "discovery" | "spectrum" | "lightcurve" | "reveal";
@@ -268,7 +268,7 @@ export function GameExperience() {
                   <h3 className="text-lg font-semibold leading-snug text-slate-100 md:text-xl">{SPECTRUM[subStep].title}</h3>
                   <p className="mt-3 text-base leading-relaxed text-slate-300 md:text-lg">{SPECTRUM[subStep].body}</p>
                 </article>
-                {subStep === 1 ? <SpectrumCa2Diagram /> : null}
+                {subStep === 1 ? <SpectrumHalphaDiagram /> : null}
                 {subStep === 0 ? (
                   <button type="button" onClick={() => setSubStep(1)} className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base">
                     Next

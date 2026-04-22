@@ -29,12 +29,12 @@ export const SPECTRUM = [
     body: "Pictures from a telescope can tell you that something got brighter — but not whether it was a real supernova, a star in our own galaxy, or something else pretending to be one. A spectrum spreads the object’s light into a rainbow and reveals fingerprints of atoms and molecules. That fingerprint is how teams proved they had the right kind of explosion and how they read off a distance-related redshift.",
   },
   {
-    title: "2 · Calcium II as a built-in ruler",
-    body: "Look for a pair of dips made by calcium in the gas (astronomers call the pair “Ca II”). The spacing between those dips is fixed by nature, like notches on a ruler. When the supernova is farther away, the whole spectrum — including those notches — is stretched toward longer wavelengths. Measuring how far the pattern slid tells you the redshift z, which you need before you can compare brightness to distance honestly.",
+    title: "2 · Hydrogen as a built-in ruler",
+    body: "Hydrogen gas in the host galaxy glows at a known wavelength — 6563 Å (Hα) — when observed nearby. When the galaxy is receding, that glow is stretched to longer wavelengths along with the rest of the spectrum. Measuring how far the emission peak shifted gives you z — which you need before you can compare brightness to distance honestly.",
   },
   {
     title: "3 · Lock when the match looks right",
-    body: "In the next tool, drag the vertical marker until it sits on the bottom of the calcium dip you trust. If you are within about 20 ångströms of the value in your table, you can lock. The game still uses the survey’s precomputed redshift for the final Hubble point so the numbers stay consistent with your course CSVs.",
+    body: "In the next tool, drag the vertical marker to the peak of the Hα emission spike you trust. If you are within about 20 ångströms of the value in your table, you can lock. The game still uses the survey’s precomputed redshift for the final Hubble point so the numbers stay consistent with your course CSVs.",
   },
 ];
 
