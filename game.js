@@ -11,7 +11,7 @@ const DATA = {
 
 const Z_AXIS = { min: 0.01, max: 1.2 };
 const MU_AXIS = { min: 32, max: 46 };
-const CAII_REST = 3934;
+const HALPHA_REST = 6563;
 const M_REF = -19.3;
 
 /** --- CSV --- */
@@ -463,50 +463,162 @@ function discoveryPhase() {
   }
   const nx = 0.55 * w + (rng() - 0.5) * 40;
   const ny = 0.42 * h + (rng() - 0.5) * 36;
+  const hostCx = nx + (rng() - 0.5) * 22;
+  const hostCy = ny + (rng() - 0.5) * 18;
+  const ringR = 6.5 + rng() * 3;
+  const dipSign = rng() > 0.5 ? 1 : -1;
   state.newStarPos = { x: nx, y: ny };
 
-  function drawField(canvas, withSN) {
-    const ctx = canvas.getContext("2d");
+  const mApp = num(sn.m_apparent);
+  const brightness_scale = Math.pow(10, -(mApp - 22) / 2.5);
+  const dotRadius = Math.min(15, Math.max(2.2, 3 + brightness_scale * 8));
+  const fillAlpha = Math.min(0.98, 0.36 + 0.26 * Math.log10(1 + brightness_scale));
+  const strokeAlpha = Math.min(0.82, 0.22 + 0.38 * Math.log10(1 + brightness_scale));
+  const strokeW = Math.min(2.8, 1.05 + 0.5 * Math.log10(1 + brightness_scale));
+  const residualAmp = 92 * Math.min(1.9, Math.max(0.45, Math.pow(brightness_scale, 0.36)));
+  const sigmaMul = Math.min(1.28, 1 + 0.11 * Math.log10(1 + brightness_scale));
+  const clickSlop = Math.min(22, Math.max(12, dotRadius * 1.35));
+
+  function luminance(r, g, b) {
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+  }
+
+  const SN_RES_R = 255;
+  const SN_RES_G = 230;
+  const SN_RES_B = 180;
+
+  function drawField(ctx, epoch, withSN) {
     ctx.fillStyle = "#05070a";
     ctx.fillRect(0, 0, w, h);
+    const hostPeak = epoch === "template" ? 0.09 : 0.2;
+    const gHost = ctx.createRadialGradient(hostCx, hostCy, 0, hostCx, hostCy, 58);
+    gHost.addColorStop(0, `rgba(72,48,36,${hostPeak})`);
+    gHost.addColorStop(0.38, `rgba(38,30,26,${hostPeak * 0.55})`);
+    gHost.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = gHost;
+    ctx.fillRect(0, 0, w, h);
+    const starMul = epoch === "template" ? 0.88 : 1;
+    const tr = epoch === "template" ? 216 : 230;
+    const tg = epoch === "template" ? 232 : 240;
+    const tb = epoch === "template" ? 255 : 255;
     for (const s of stars) {
-      ctx.fillStyle = `rgba(230,240,255,${s.b})`;
+      const b = Math.min(0.98, s.b * starMul);
+      ctx.fillStyle = `rgba(${tr},${tg},${tb},${b})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
     if (withSN) {
-      ctx.fillStyle = "rgba(255,230,180,0.95)";
+      ctx.fillStyle = `rgba(255,230,180,${fillAlpha})`;
       ctx.beginPath();
-      ctx.arc(nx, ny, 3.2, 0, Math.PI * 2);
+      ctx.arc(nx, ny, dotRadius, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = "rgba(255,200,120,0.5)";
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = `rgba(255,200,120,${strokeAlpha})`;
+      ctx.lineWidth = strokeW;
       ctx.stroke();
     }
   }
 
-  els.phaseUi.innerHTML = `
-    <p class="hint">Two epochs of the same field. Click the <strong>new</strong> point source in the right panel.</p>
-    <div class="phase-grid">
-      <div class="star-panel"><h3>Before</h3><canvas class="star-canvas" width="${w}" height="${h}"></canvas></div>
-      <div class="star-panel"><h3>After</h3><canvas class="star-canvas sn-canvas" width="${w}" height="${h}"></canvas></div>
-    </div>`;
-  const [cBefore, cAfter] = els.phaseUi.querySelectorAll("canvas");
-  drawField(cBefore, false);
-  drawField(cAfter, true);
+  function addReadNoise(img, seedExtra, strength) {
+    const rng = mulberry32(hashString(sn.sn_name + seedExtra));
+    for (let i = 0; i < img.data.length; i += 4) {
+      const tri = () => rng() + rng() - 1;
+      const n = tri() * strength;
+      const nG = tri() * strength * 0.96;
+      const nB = tri() * strength * 1.02;
+      img.data[i] = Math.max(0, Math.min(255, img.data[i] + n));
+      img.data[i + 1] = Math.max(0, Math.min(255, img.data[i + 1] + nG));
+      img.data[i + 2] = Math.max(0, Math.min(255, img.data[i + 2] + nB));
+    }
+  }
 
-  cAfter.addEventListener(
+  function fieldImageData(epoch, withSN) {
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    drawField(ctx, epoch, withSN);
+    const img = ctx.getImageData(0, 0, w, h);
+    addReadNoise(img, epoch === "template" ? "readTemplate" : "readNew", epoch === "template" ? 4.4 : 2.5);
+    return img;
+  }
+
+  els.phaseUi.innerHTML = `
+    <p class="hint">Template and new epoch, then the <strong>difference</strong> (new − template). Click the isolated residual point on the <strong>difference</strong> panel.</p>
+    <div class="phase-grid phase-grid-three">
+      <div class="star-panel"><h3>Template</h3><canvas class="star-canvas" width="${w}" height="${h}"></canvas></div>
+      <div class="star-panel"><h3>New epoch</h3><canvas class="star-canvas" width="${w}" height="${h}"></canvas></div>
+      <div class="star-panel star-panel-diff"><h3>Difference</h3><canvas class="star-canvas sn-canvas" width="${w}" height="${h}"></canvas></div>
+    </div>`;
+  const [cTemplate, cNew, cDiff] = els.phaseUi.querySelectorAll("canvas");
+  const tImg = fieldImageData("template", false);
+  const nImg = fieldImageData("new", true);
+  cTemplate.getContext("2d").putImageData(tImg, 0, 0);
+  cNew.getContext("2d").putImageData(nImg, 0, 0);
+
+  const rngN = mulberry32(hashString(sn.sn_name + "residual"));
+  const dCtx = cDiff.getContext("2d", { willReadFrequently: true });
+  const dImg = dCtx.createImageData(w, h);
+  const baseR = 9;
+  const baseG = 9;
+  const baseB = 11;
+  const gain = 5.6;
+  function tri() {
+    return rngN() + rngN() - 1;
+  }
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const lt = luminance(tImg.data[i], tImg.data[i + 1], tImg.data[i + 2]);
+      const ln = luminance(nImg.data[i], nImg.data[i + 1], nImg.data[i + 2]);
+      let d = ln - lt;
+      const dhx = x - hostCx;
+      const dhy = y - hostCy;
+      const dh = Math.hypot(dhx, dhy);
+      d += 0.36 * Math.exp(-((dh - ringR) * (dh - ringR)) / 28) - 0.24 * Math.exp(-(dh * dh) / 115);
+      const dipU = dh > 0.35 ? dhx / dh : 0;
+      d += dipSign * 0.13 * dipU * Math.exp(-(dh * dh) / (2 * 4.6 * 4.6));
+      const nR = tri() * 2.35;
+      const nG = tri() * 2.25;
+      const nB = tri() * 2.3;
+      const rs = Math.hypot(x - nx, y - ny);
+      const s1 = 1.48 * sigmaMul;
+      const s2 = 3.15 * sigmaMul;
+      const s3 = 5.35 * sigmaMul;
+      const psf =
+        Math.exp(-(rs * rs) / (2 * s1 * s1)) +
+        0.52 * Math.exp(-(rs * rs) / (2 * s2 * s2)) +
+        0.3 * Math.exp(-(rs * rs) / (2 * s3 * s3));
+      const fade = 1 - Math.min(0.96, psf * 0.95);
+      let r = baseR + gain * d * fade + nR;
+      let g = baseG + gain * d * fade + nG;
+      let b = baseB + gain * d * fade + nB;
+      r += (psf * residualAmp * SN_RES_R) / 255;
+      g += (psf * residualAmp * SN_RES_G) / 255;
+      b += (psf * residualAmp * SN_RES_B) / 255;
+      const grain = tri() * 1.65;
+      r += grain;
+      g += grain * 0.96;
+      b += grain * 1.03;
+      dImg.data[i] = Math.max(0, Math.min(255, r));
+      dImg.data[i + 1] = Math.max(0, Math.min(255, g));
+      dImg.data[i + 2] = Math.max(0, Math.min(255, b));
+      dImg.data[i + 3] = 255;
+    }
+  }
+  dCtx.putImageData(dImg, 0, 0);
+
+  cDiff.addEventListener(
     "click",
     (ev) => {
-      const rect = cAfter.getBoundingClientRect();
+      const rect = cDiff.getBoundingClientRect();
       const sx = ((ev.clientX - rect.left) / rect.width) * w;
       const sy = ((ev.clientY - rect.top) / rect.height) * h;
-      const d = Math.hypot(sx - nx, sy - ny);
-      if (d < 18) {
+      const dist = Math.hypot(sx - nx, sy - ny);
+      if (dist < clickSlop) {
         toast("Candidate confirmed — spectroscopy next.");
         spectrumPhase();
-      } else toast("Try the new source in the after image.", "warn");
+      } else toast("Try the bright residual on the difference image.", "warn");
     },
     { once: false }
   );
@@ -528,10 +640,11 @@ function spectrumPhase() {
   state.spectrumLineLambda = (lamMin + lamMax) / 2;
 
   els.phaseUi.innerHTML = `
-    <p class="hint">Drag the vertical line onto the Ca&nbsp;II absorption minimum (compare to your table value after locking).</p>
+    <p class="hint">Drag the vertical line to the <strong>peak of the Hα emission spike</strong> (compare to your table value after locking).</p>
     <div class="spectrum-wrap"><canvas id="cv-spec" width="640" height="220"></canvas></div>
     <div class="axis-label">Observed wavelength (Å) · flux + noise</div>
-    <p class="drag-hint" id="z-readout"></p>
+    <p class="drag-hint" id="z-readout" style="font-size:1.05rem;line-height:1.5;margin-top:0.5rem;"></p>
+    <div id="z-explain" style="margin-top:0.75rem;padding:1rem 1.25rem;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(5,8,12,0.55);max-width:640px;"></div>
     <div class="controls">
       <button type="button" id="btn-lock-z" disabled>Lock redshift</button>
     </div>`;
@@ -581,9 +694,22 @@ function spectrumPhase() {
   }
 
   function updateReadout() {
-    const zMeas = state.spectrumLineLambda / CAII_REST - 1;
-    readout.innerHTML = `Line center: <strong>${state.spectrumLineLambda.toFixed(1)} Å</strong> → z<sub>meas</sub> = <strong>${zMeas.toFixed(4)}</strong> (plot uses precomputed z<sub>obs</sub> = ${num(sn.z_obs).toFixed(4)})`;
-    const ok = Math.abs(state.spectrumLineLambda - num(sn.lambda_CaII)) < 20;
+    const lam = state.spectrumLineLambda;
+    const zMeas = lam / HALPHA_REST - 1;
+    const stretch = lam / HALPHA_REST;
+    readout.innerHTML = `Line you marked: <strong>${lam.toFixed(1)} Å</strong> (observed). That implies <strong>z<sub>meas</sub> = ${zMeas.toFixed(4)}</strong> from the steps in the box below. Final Hubble point still uses z<sub>obs</sub> = ${num(sn.z_obs).toFixed(4)}.`;
+    const explain = document.getElementById("z-explain");
+    if (explain) {
+      explain.innerHTML = `
+        <h4 style="margin:0 0 0.5rem;font-size:1.05rem;color:var(--text);">How that Ångström value becomes a redshift</h4>
+        <ol style="margin:0;padding-left:1.25rem;line-height:1.55;font-size:1rem;color:var(--muted);">
+          <li style="margin-bottom:0.65rem;"><strong style="color:var(--text);">Rest wavelength.</strong> In the lab, the hydrogen Hα line we match is fixed at <strong style="font-family:ui-monospace,monospace;color:var(--accent2);">${HALPHA_REST} Å</strong> in the rest frame.</li>
+          <li style="margin-bottom:0.65rem;"><strong style="color:var(--text);">Cosmic stretch.</strong> Expansion stretches every wavelength by <strong style="font-family:ui-monospace,monospace;color:var(--accent);">(1 + z)</strong>, so <strong style="font-family:ui-monospace,monospace;color:var(--text);">λ<sub>obs</sub> = λ<sub>rest</sub> × (1 + z)</strong>.</li>
+          <li><strong style="color:var(--text);">Solve for z.</strong> Rearrange: <strong style="font-family:ui-monospace,monospace;color:var(--text);">z = λ<sub>obs</sub> / λ<sub>rest</sub> − 1</strong>. Here <strong style="font-family:ui-monospace,monospace;">z<sub>meas</sub> = ${lam.toFixed(1)} / ${HALPHA_REST} − 1 = ${stretch.toFixed(4)} − 1 = ${zMeas.toFixed(4)}</strong> — stretched by <strong style="font-family:ui-monospace,monospace;color:var(--accent);">${stretch.toFixed(3)}×</strong> along wavelength.</li>
+        </ol>
+        <p style="margin:0.75rem 0 0;font-size:0.95rem;color:var(--muted);opacity:0.95;">If the spike sat exactly at ${HALPHA_REST} Å you would have z = 0. The farther the peak slides right, the larger (1 + z) is.</p>`;
+    }
+    const ok = Math.abs(state.spectrumLineLambda - num(sn.lambda_Halpha)) < 20;
     btnLock.disabled = !ok;
     drawSpec();
   }
@@ -633,9 +759,9 @@ function lightCurvePhase() {
   state.lightCurvePoints = pts;
 
   els.phaseUi.innerHTML = `
-    <p class="hint">Noisy photometry vs phase. Click <strong>Fit peak</strong> to read the standardized peak magnitude.</p>
+    <p class="hint" style="font-size:1rem;line-height:1.55;max-width:640px;">Each <strong>white dot</strong> is one night’s brightness of the <em>same</em> supernova (x = which night relative to peak, y = how bright that night). Many nights trace the rise and fall. The <strong>single m</strong> used for distance is only the <strong>peak</strong> around day 0 — after you fit the template, read that peak magnitude. Click <strong>Fit peak</strong> when ready.</p>
     <div class="lightcurve-wrap"><canvas id="cv-lc" width="640" height="220"></canvas></div>
-    <div class="axis-label">Phase (days) · magnitude (fainter upward)</div>
+    <div class="axis-label">Axis labels are on the plot: days since peak (horizontal) and apparent magnitude (vertical).</div>
     <div class="controls">
       <button type="button" id="btn-fit-peak">Fit peak</button>
       <button type="button" id="btn-lc-continue" class="primary hidden">Add point to Hubble diagram</button>
@@ -652,35 +778,84 @@ function lightCurvePhase() {
   const mVals = pts.map((p) => p.mObs);
   const mMin = Math.min(...mVals, mPeak) - 0.25;
   const mMax = Math.max(...mVals, mPeak) + 0.35;
-  const pad = 18;
-  const iw = cv.width - pad * 2;
-  const ih = cv.height - pad * 2;
+  const padL = 58;
+  const padR = 16;
+  const padT = 32;
+  const padB = 46;
+  const iw = cv.width - padL - padR;
+  const ih = cv.height - padT - padB;
 
   function yLc(m) {
-    return pad + ih * ((m - mMin) / (mMax - mMin || 1));
+    return padT + ih * ((m - mMin) / (mMax - mMin || 1));
+  }
+  function xT(t) {
+    return padL + ((t - tMin) / (tMax - tMin)) * iw;
   }
 
   function drawLC(showTemplate) {
+    const w = cv.width;
+    const h = cv.height;
     ctx.fillStyle = "#05070a";
-    ctx.fillRect(0, 0, cv.width, cv.height);
-    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.fillRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT + ih);
+    ctx.lineTo(padL + iw, padT + ih);
+    ctx.moveTo(padL, padT);
+    ctx.lineTo(padL, padT + ih);
+    ctx.stroke();
     for (let i = 0; i <= 5; i++) {
       const m = mMin + (i / 5) * (mMax - mMin);
       const y = yLc(m);
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
       ctx.beginPath();
-      ctx.moveTo(pad, y);
-      ctx.lineTo(pad + iw, y);
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + iw, y);
       ctx.stroke();
       ctx.fillStyle = "#6b7788";
       ctx.font = "10px system-ui";
-      ctx.fillText(m.toFixed(2), 2, y + 3);
+      ctx.textAlign = "right";
+      ctx.fillText(m.toFixed(2), padL - 8, y + 3);
     }
+    ctx.textAlign = "start";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.fillText("↑ brighter", padL + 4, padT + 2);
+    ctx.save();
+    ctx.translate(14, padT + ih / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Apparent magnitude (m)", 0, 0);
+    ctx.restore();
+    const xTicks = [-20, -10, 0, 10, 20, 30, 40, 45];
+    ctx.fillStyle = "#6b7788";
+    ctx.font = "9px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    for (let ti = 0; ti < xTicks.length; ti++) {
+      const tv = xTicks[ti];
+      const x = xT(tv);
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.beginPath();
+      ctx.moveTo(x, padT + ih);
+      ctx.lineTo(x, padT + ih + 4);
+      ctx.stroke();
+      ctx.fillText(tv === 0 ? "0" : String(tv), x, padT + ih + 15);
+    }
+    ctx.textAlign = "start";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "11px system-ui,sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Days relative to maximum brightness", padL + iw / 2, h - 10);
+    ctx.textAlign = "start";
     if (showTemplate) {
       ctx.beginPath();
       for (let t = tMin; t <= tMax; t += 1) {
         const dm = interpolateLC(lcTemplate, t);
         const m = mPeak + dm;
-        const x = pad + ((t - tMin) / (tMax - tMin)) * iw;
+        const x = xT(t);
         const y = yLc(m);
         if (t === tMin) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
@@ -688,9 +863,32 @@ function lightCurvePhase() {
       ctx.strokeStyle = "rgba(110,181,255,0.45)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
+      const dm0 = interpolateLC(lcTemplate, 0);
+      const peakX = xT(0);
+      const peakY = yLc(mPeak + dm0);
+      ctx.beginPath();
+      ctx.arc(peakX, peakY, 5, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(251,191,36,0.95)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(251,191,36,0.65)";
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      const lx = Math.min(peakX + 52, padL + iw - 8);
+      const ly = Math.max(peakY - 38, padT + 14);
+      ctx.strokeStyle = "rgba(251,191,36,0.5)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(peakX + 5, peakY - 4);
+      ctx.lineTo(lx - 4, ly + 12);
+      ctx.stroke();
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "bold 11px system-ui,sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText("peak m → distance", lx, ly);
+      ctx.textAlign = "start";
     }
     for (const p of pts) {
-      const x = pad + ((p.t - tMin) / (tMax - tMin)) * iw;
+      const x = xT(p.t);
       const y = yLc(p.mObs);
       ctx.fillStyle = "#e8edf4";
       ctx.beginPath();
@@ -792,7 +990,7 @@ async function boot() {
         mu_obs: num(r.mu_obs),
         sigma_mu: num(r.sigma_mu),
         m_apparent: num(r.m_apparent),
-        lambda_CaII: num(r.lambda_CaII),
+        lambda_Halpha: num(r.lambda_Halpha),
       }))
       .sort((a, b) => num(a.sequence_order_resolved) - num(b.sequence_order_resolved));
 

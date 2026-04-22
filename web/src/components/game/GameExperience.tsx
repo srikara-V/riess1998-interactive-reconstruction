@@ -9,7 +9,8 @@ import { DiscoveryInteractive } from "./DiscoveryInteractive";
 import { HubbleDualPanel } from "./HubbleDualPanel";
 import { LightcurveInteractive } from "./LightcurveInteractive";
 import { LightcurveModulusIntro } from "./LightcurveModulusIntro";
-import { SpectrumCa2Diagram } from "./SpectrumCa2Diagram";
+import { PsfMatchingAnimation } from "./PsfMatchingAnimation";
+import { SpectrumHalphaDiagram } from "./SpectrumHalphaDiagram";
 import { SpectrumInteractive } from "./SpectrumInteractive";
 
 type Phase = "welcome" | "discovery" | "spectrum" | "lightcurve" | "reveal";
@@ -161,29 +162,61 @@ export function GameExperience() {
 
   const finalChiSn = bundle?.supernovae[bundle.supernovae.length - 1] ?? null;
 
+  const renderDiscoveryBody = (body: string | string[]) => {
+    if (Array.isArray(body)) {
+      return (
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
+          {body.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{body}</p>;
+  };
+
+  const renderLightcurveBody = (body: string | string[]) => {
+    if (Array.isArray(body)) {
+      return (
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
+          {body.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{body}</p>;
+  };
+
   if (loadError) {
     return (
-      <div className="mx-auto max-w-lg rounded-xl border border-red-500/30 bg-red-950/40 p-6 text-red-100">
+      <div className="font-ui mx-auto max-w-lg rounded-xl border border-red-200 bg-red-50 p-6 text-red-950">
         <p className="font-semibold">Could not load CSV data</p>
-        <p className="mt-2 text-sm opacity-90">{loadError}</p>
+        <p className="mt-2 text-sm text-red-900/80">{loadError}</p>
       </div>
     );
   }
 
   if (!bundle) {
-    return <div className="animate-pulse text-slate-400">Loading precomputed survey…</div>;
+    return (
+      <div className="font-ui px-4 py-8 text-center text-sm text-stone-500 animate-pulse md:px-8">Loading precomputed survey…</div>
+    );
   }
 
-  const canFastForward = phase !== "welcome" && !ended && currentIndex < bundle.supernovae.length;
+  const canFastForward =
+    phase !== "welcome" &&
+    !ended &&
+    currentIndex < bundle.supernovae.length &&
+    !(phase === "discovery" && subStep < 1);
 
   return (
-    <div className="mx-auto max-w-[1400px] px-3 pb-16 pt-4">
+    <div className="mx-auto max-w-[1400px] px-3 pb-16 pt-6 md:px-6">
       {canFastForward ? (
-        <div className="mb-3 flex justify-end border-b border-white/5 pb-3">
+        <div className="font-ui mb-4 flex justify-end border-b border-stone-200 pb-3">
           <button
             type="button"
             onClick={plotAllRemainingInstant}
-            className="rounded-lg border border-amber-400/35 bg-amber-950/40 px-4 py-2 text-sm font-medium text-amber-100 hover:bg-amber-950/70"
+            className="rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50"
           >
             Plot all remaining points
           </button>
@@ -193,18 +226,22 @@ export function GameExperience() {
       {/* Narrative + interaction */}
       <div className="min-w-0 flex-1 space-y-4">
         {phase === "welcome" ? (
-          <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl">
-            <h2 className="text-xl font-semibold text-sky-200">{WELCOME.title}</h2>
+          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
+            <h2 className="text-xl font-semibold text-stone-900 md:text-2xl">{WELCOME.title}</h2>
             {WELCOME.body.map((p) => (
-              <p key={p.slice(0, 24)} className="mt-3 text-sm leading-relaxed text-slate-300">
+              <p key={p.slice(0, 24)} className="mt-4 text-base leading-relaxed text-stone-600 md:text-lg">
                 {p}
               </p>
             ))}
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <p className="text-sm text-slate-400">
-                Perspective: <strong className="text-slate-200">High-z Supernova Search Team</strong> (Harvard / CfA–led collaboration).
+            <div className="font-ui mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+              <p className="text-sm text-stone-600 md:text-base">
+                Perspective: <strong className="text-stone-900">High-z Supernova Search Team</strong> (Harvard / CfA–led collaboration).
               </p>
-              <button type="button" onClick={startSurvey} className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-500">
+              <button
+                type="button"
+                onClick={startSurvey}
+                className="rounded-lg bg-stone-900 px-5 py-2.5 text-sm font-semibold text-white shadow hover:bg-stone-800"
+              >
                 Begin step-by-step survey
               </button>
             </div>
@@ -212,20 +249,20 @@ export function GameExperience() {
         ) : null}
 
         {phase !== "welcome" ? (
-          <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5 shadow-xl">
-            <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2 border-b border-white/10 pb-3">
+        <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm md:p-6">
+            <header className="font-ui mb-5 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-200 pb-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">High-z pipeline</p>
-                <h2 className="text-lg font-semibold text-sky-200">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">High-z pipeline</p>
+                <h2 className="mt-1 text-lg font-semibold text-stone-900 md:text-xl">
                   {phase === "discovery" && "Discovery — difference imaging"}
                   {phase === "spectrum" && "Spectroscopy — redshift from features"}
                   {phase === "lightcurve" && "Photometry — standardizing the candle"}
                   {phase === "reveal" && "Hubble diagram update"}
                 </h2>
               </div>
-              <p className="text-right text-sm text-slate-400">
-                Object <span className="font-mono text-slate-200">{sn?.sn_name ?? "—"}</span>
-                <span className="block text-xs text-slate-500">
+              <p className="text-right text-sm text-stone-600">
+                Object <span className="font-mono text-stone-900">{sn?.sn_name ?? "—"}</span>
+                <span className="block text-xs text-stone-500">
                   {currentIndex + 1} / {bundle.supernovae.length}
                 </span>
               </p>
@@ -233,49 +270,71 @@ export function GameExperience() {
 
             {phase === "discovery" ? (
               <div className="space-y-4">
-                <article className="rounded-xl bg-slate-950/60 p-5 md:p-6">
-                  <h3 className="text-lg font-semibold leading-snug text-slate-100 md:text-xl">{DISCOVERY[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-slate-300 md:text-lg">{DISCOVERY[subStep].body}</p>
-                </article>
-                {subStep === 2 ? (
-                  <DiscoveryInteractive
-                    snName={sn!.sn_name}
-                    mApparent={sn!.m_apparent}
-                    onFound={() => {
-                      showToast("Transient confirmed — queue spectrum.");
-                      setSubStep(0);
-                      setPhase("spectrum");
-                    }}
-                  />
-                ) : null}
-                {subStep < 2 ? (
+                {subStep === 0 ? (
+                  <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                    <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[0].title}</h3>
+                    {renderDiscoveryBody(DISCOVERY[0].body)}
+                    <div className="mt-6 border-t border-stone-200 pt-6">
+                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
+                      {renderDiscoveryBody(DISCOVERY[1].body)}
+                      <div className="mt-5">
+                        <PsfMatchingAnimation />
+                      </div>
+                    </div>
+                  </article>
+                ) : (
+                  <>
+                    <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[2].title}</h3>
+                      {renderDiscoveryBody(DISCOVERY[2].body)}
+                    </article>
+                    <DiscoveryInteractive
+                      snName={sn!.sn_name}
+                      mApparent={sn!.m_apparent}
+                      onFound={() => {
+                        showToast("Transient confirmed — queue spectrum.");
+                        setSubStep(0);
+                        setPhase("spectrum");
+                      }}
+                    />
+                  </>
+                )}
+                {subStep === 0 ? (
                   <button
                     type="button"
-                    onClick={() => setSubStep((s) => Math.min(2, s + 1))}
-                    className="rounded-lg border border-white/15 bg-slate-800 px-4 py-2 text-sm"
+                    onClick={() => setSubStep(1)}
+                    className="font-ui rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50"
                   >
                     Next
                   </button>
                 ) : (
-                  <p className="text-xs text-slate-500">Click the residual point source in the Difference panel to continue.</p>
+                  <p className="text-xs text-stone-500">Click the residual point source in the Difference panel to continue.</p>
                 )}
               </div>
             ) : null}
 
             {phase === "spectrum" ? (
               <div className="space-y-4">
-                <article className="rounded-xl bg-slate-950/60 p-5 md:p-6">
-                  <h3 className="text-lg font-semibold leading-snug text-slate-100 md:text-xl">{SPECTRUM[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-slate-300 md:text-lg">{SPECTRUM[subStep].body}</p>
+                <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                  <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{SPECTRUM[subStep].title}</h3>
+                  <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{SPECTRUM[subStep].body}</p>
                 </article>
-                {subStep === 1 ? <SpectrumCa2Diagram /> : null}
+                {subStep === 1 ? <SpectrumHalphaDiagram /> : null}
                 {subStep === 0 ? (
-                  <button type="button" onClick={() => setSubStep(1)} className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base">
+                  <button
+                    type="button"
+                    onClick={() => setSubStep(1)}
+                    className="font-ui rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50"
+                  >
                     Next
                   </button>
                 ) : null}
                 {subStep === 1 ? (
-                  <button type="button" onClick={() => setSubStep(2)} className="rounded-lg bg-sky-700 px-5 py-2.5 text-base font-medium text-white">
+                  <button
+                    type="button"
+                    onClick={() => setSubStep(2)}
+                    className="font-ui rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800"
+                  >
                     Open spectrum tool
                   </button>
                 ) : null}
@@ -298,18 +357,26 @@ export function GameExperience() {
 
             {phase === "lightcurve" ? (
               <div className="space-y-4">
-                <article className="rounded-xl bg-slate-950/60 p-5 md:p-6">
-                  <h3 className="text-lg font-semibold leading-snug text-slate-100 md:text-xl">{LIGHTCURVE[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-slate-300 md:text-lg">{LIGHTCURVE[subStep].body}</p>
+                <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                  <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{LIGHTCURVE[subStep].title}</h3>
+                  {renderLightcurveBody(LIGHTCURVE[subStep].body)}
                 </article>
                 {subStep === 0 ? (
-                  <button type="button" onClick={() => setSubStep(1)} className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base">
+                  <button
+                    type="button"
+                    onClick={() => setSubStep(1)}
+                    className="font-ui rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50"
+                  >
                     Next
                   </button>
                 ) : null}
                 {subStep === 1 && sn ? <LightcurveModulusIntro sn={sn} /> : null}
                 {subStep === 1 ? (
-                  <button type="button" onClick={() => setSubStep(2)} className="rounded-lg bg-sky-700 px-5 py-2.5 text-base font-medium text-white">
+                  <button
+                    type="button"
+                    onClick={() => setSubStep(2)}
+                    className="font-ui rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800"
+                  >
                     Open light-curve tool
                   </button>
                 ) : null}
@@ -326,15 +393,15 @@ export function GameExperience() {
             ) : null}
 
             {phase === "reveal" ? (
-              <p className="text-sm text-slate-300">Plotting precomputed μ_obs vs z_obs with error bars…</p>
+              <p className="text-sm text-stone-600">Plotting precomputed μ_obs vs z_obs with error bars…</p>
             ) : null}
-          </section>
+        </section>
         ) : null}
 
         {guessPrompted ? (
           <button
             type="button"
-            className="rounded-lg border border-white/15 bg-slate-800 px-3 py-2 text-sm text-slate-200"
+            className="font-ui rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50"
             onClick={() => guessChiSn && setGuessOpen(true)}
           >
             Open cosmology guess panel
@@ -345,20 +412,20 @@ export function GameExperience() {
       {/* Sticky Hubble column */}
       <div className="w-full shrink-0 md:w-[min(440px,38vw)] md:sticky md:top-4">
         {sn && (hubbleGuide.z != null || hubbleGuide.mu != null) ? (
-          <div className="mb-2 rounded-lg border border-sky-500/25 bg-slate-900/90 p-3 font-mono text-[11px] leading-relaxed text-slate-300">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-sky-400/90">Notebook — this supernova on the diagram</div>
+          <div className="font-ui mb-2 rounded-lg border border-stone-200 bg-stone-100/90 p-3 font-mono text-[11px] leading-relaxed text-stone-700">
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500">Notebook — this supernova on the diagram</div>
             {hubbleGuide.z != null ? (
               <div>
-                <span className="text-slate-500">x-axis:</span> z<sub>meas</sub> = {hubbleGuide.z.toFixed(4)} → horizontal position on log-scaled z
+                <span className="text-stone-500">x-axis:</span> z<sub>meas</sub> = {hubbleGuide.z.toFixed(4)} → horizontal position on log-scaled z
               </div>
             ) : null}
             {hubbleGuide.mu != null ? (
               <div>
-                <span className="text-slate-500">y-axis:</span> μ ≈ m − M = {sn.m_apparent.toFixed(2)} − ({M_REF}) = {hubbleGuide.mu.toFixed(2)} mag
+                <span className="text-stone-500">y-axis:</span> μ ≈ m − M = {sn.m_apparent.toFixed(2)} − ({M_REF}) = {hubbleGuide.mu.toFixed(2)} mag
               </div>
             ) : null}
-            <div className="mt-2 border-t border-white/10 pt-2 text-slate-500">
-              Plotted after “Add to Hubble diagram”: <span className="font-mono text-slate-300">(z_obs, μ_obs)</span> = ({sn.z_obs.toFixed(4)}, {sn.mu_obs.toFixed(2)}) with σ<sub>μ</sub> ={" "}
+            <div className="mt-2 border-t border-stone-200 pt-2 text-stone-600">
+              Plotted after “Add to Hubble diagram”: <span className="font-mono text-stone-900">(z_obs, μ_obs)</span> = ({sn.z_obs.toFixed(4)}, {sn.mu_obs.toFixed(2)}) with σ<sub>μ</sub> ={" "}
               {sn.sigma_mu.toFixed(2)} (precomputed survey values).
             </div>
           </div>
@@ -374,18 +441,18 @@ export function GameExperience() {
       </div>
 
       {guessOpen && guessChiSn ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="max-w-md rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-sky-200">Which cosmology matches the data?</h3>
-            <p className="mt-2 text-xs text-slate-400">Cumulative χ² after last completed supernova (lower is better).</p>
-            <pre className="mt-3 rounded-lg bg-black/50 p-3 text-[11px] leading-relaxed text-slate-300">
+        <div className="font-ui fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-[2px]">
+          <div className="max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
+            <h3 className="text-lg font-semibold text-stone-900">Which cosmology matches the data?</h3>
+            <p className="mt-2 text-xs text-stone-600">Cumulative χ² after last completed supernova (lower is better).</p>
+            <pre className="mt-3 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] leading-relaxed text-stone-800">
               χ² EdS: {guessChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
               {"\n"}χ² open: {guessChiSn.cumchi2_open_matter_after_this_sequence.toFixed(2)}
               {"\n"}χ² flat ΛCDM: {guessChiSn.cumchi2_flat_LCDM_after_this_sequence.toFixed(2)}
             </pre>
             <div className="mt-4 flex flex-col gap-2">
               <button
-                className="rounded-lg border border-white/10 bg-slate-800 px-3 py-2 text-left text-sm"
+                className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-50"
                 onClick={() => {
                   setGuessOpen(false);
                   showToast("Keep going — decelerating models stay low at high z.");
@@ -399,7 +466,7 @@ export function GameExperience() {
                 Ω_m=1, Ω_Λ=0 — rapid deceleration
               </button>
               <button
-                className="rounded-lg border border-white/10 bg-slate-800 px-3 py-2 text-left text-sm"
+                className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-50"
                 onClick={() => {
                   setGuessOpen(false);
                   showToast("Still not enough — look at z≳0.3 residuals.");
@@ -413,7 +480,7 @@ export function GameExperience() {
                 Ω_m=0.3, Ω_Λ=0 — gentle deceleration
               </button>
               <button
-                className="rounded-lg bg-sky-600 px-3 py-2 text-left text-sm font-semibold text-white"
+                className="rounded-lg bg-stone-900 px-3 py-2 text-left text-sm font-semibold text-white hover:bg-stone-800"
                 onClick={() => {
                   setGuessOpen(false);
                   setEnded(true);
@@ -431,22 +498,26 @@ export function GameExperience() {
       ) : null}
 
       {endOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
-          <div className="max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-6 shadow-2xl">
-            <h3 className="text-xl font-semibold text-sky-200">What they found was neither…</h3>
-            <p className="mt-3 text-sm leading-relaxed text-slate-300">
-              The distant supernovae are brighter than either decelerating curve predicts at high redshift. Together with a matter density Ω_m≈0.3 from large-scale structure, a
-              cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
+        <div className="font-ui fixed inset-0 z-50 flex items-center justify-center bg-stone-900/45 p-4 backdrop-blur-[2px]">
+          <div className="max-w-lg rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
+            <h3 className="text-xl font-semibold text-stone-900">What they found was neither…</h3>
+            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+              The distant supernovae are dimmer than either decelerating curve predicts at high redshift, so they are farther away than those models expect. Together with a matter
+              density Ω_m≈0.3 from large-scale structure, a cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
             </p>
             {finalChiSn ? (
-              <pre className="mt-4 rounded-lg bg-black/50 p-3 text-[11px] text-slate-300">
+              <pre className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-800">
                 Final χ² — EdS: {finalChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
                 {"\n"}open matter: {finalChiSn.cumchi2_open_matter_after_this_sequence.toFixed(2)}
                 {"\n"}flat ΛCDM: {finalChiSn.cumchi2_flat_LCDM_after_this_sequence.toFixed(2)}
               </pre>
             ) : null}
-            <p className="mt-2 text-xs text-slate-500">{endReason}</p>
-            <button type="button" className="mt-6 rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white" onClick={() => location.reload()}>
+            <p className="mt-2 text-xs text-stone-500">{endReason}</p>
+            <button
+              type="button"
+              className="mt-6 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+              onClick={() => location.reload()}
+            >
               Play again
             </button>
           </div>
@@ -454,7 +525,7 @@ export function GameExperience() {
       ) : null}
 
       {toast ? (
-        <div className="fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-white/10 bg-slate-900 px-4 py-2 text-sm text-slate-100 shadow-lg">
+        <div className="font-ui fixed bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-stone-200 bg-white px-5 py-2.5 text-sm text-stone-800 shadow-lg">
           {toast}
         </div>
       ) : null}

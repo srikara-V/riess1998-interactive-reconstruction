@@ -26,7 +26,7 @@ export async function loadGameBundle(): Promise<GameBundle> {
       mu_obs: num(r.mu_obs),
       sigma_mu: num(r.sigma_mu),
       m_apparent: num(r.m_apparent),
-      lambda_CaII: num(r.lambda_CaII),
+      lambda_Halpha: num(r.lambda_Halpha),
       sequence_order_resolved: num(r.sequence_order_resolved),
       residual_obs_minus_open_matter_at_z_obs: num(r.residual_obs_minus_open_matter_at_z_obs),
       cumchi2_EdS_after_this_sequence: num(r.cumchi2_EdS_after_this_sequence),
