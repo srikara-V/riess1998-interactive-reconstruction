@@ -162,6 +162,32 @@ export function GameExperience() {
 
   const finalChiSn = bundle?.supernovae[bundle.supernovae.length - 1] ?? null;
 
+  const renderDiscoveryBody = (body: string | string[]) => {
+    if (Array.isArray(body)) {
+      return (
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
+          {body.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{body}</p>;
+  };
+
+  const renderLightcurveBody = (body: string | string[]) => {
+    if (Array.isArray(body)) {
+      return (
+        <ul className="mt-3 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
+          {body.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+    }
+    return <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{body}</p>;
+  };
+
   if (loadError) {
     return (
       <div className="font-ui mx-auto max-w-lg rounded-xl border border-red-200 bg-red-50 p-6 text-red-950">
@@ -247,10 +273,10 @@ export function GameExperience() {
                 {subStep === 0 ? (
                   <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
                     <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[0].title}</h3>
-                    <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[0].body}</p>
+                    {renderDiscoveryBody(DISCOVERY[0].body)}
                     <div className="mt-6 border-t border-stone-200 pt-6">
                       <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
-                      <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[1].body}</p>
+                      {renderDiscoveryBody(DISCOVERY[1].body)}
                       <div className="mt-5">
                         <PsfMatchingAnimation />
                       </div>
@@ -260,7 +286,7 @@ export function GameExperience() {
                   <>
                     <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
                       <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[2].title}</h3>
-                      <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[2].body}</p>
+                      {renderDiscoveryBody(DISCOVERY[2].body)}
                     </article>
                     <DiscoveryInteractive
                       snName={sn!.sn_name}
@@ -333,7 +359,7 @@ export function GameExperience() {
               <div className="space-y-4">
                 <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
                   <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{LIGHTCURVE[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{LIGHTCURVE[subStep].body}</p>
+                  {renderLightcurveBody(LIGHTCURVE[subStep].body)}
                 </article>
                 {subStep === 0 ? (
                   <button
@@ -476,8 +502,8 @@ export function GameExperience() {
           <div className="max-w-lg rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
             <h3 className="text-xl font-semibold text-stone-900">What they found was neither…</h3>
             <p className="mt-3 text-sm leading-relaxed text-stone-600">
-              The distant supernovae are brighter than either decelerating curve predicts at high redshift. Together with a matter density Ω_m≈0.3 from large-scale structure, a
-              cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
+              The distant supernovae are dimmer than either decelerating curve predicts at high redshift, so they are farther away than those models expect. Together with a matter
+              density Ω_m≈0.3 from large-scale structure, a cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
             </p>
             {finalChiSn ? (
               <pre className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-800">

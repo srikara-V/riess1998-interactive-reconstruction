@@ -90,19 +90,29 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
 
     function drawCurve(key: keyof typeof curves, color: string, lw?: number) {
       const arr = curves[key];
+      ctx.save();
       ctx.beginPath();
+      ctx.rect(padL, padT, iw, ih);
+      ctx.clip();
+      ctx.beginPath();
+      let started = false;
       for (let i = 0; i < arr.length; i++) {
         const z = arr[i].z;
+        if (z < Z_AXIS.min || z > Z_AXIS.max) continue;
         const mu = arr[i].mu_theory;
         const x = padL + xHubble(z, iw);
         const y = padT + yHubble(mu, ih);
-        if (i === 0) ctx.moveTo(x, y);
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        }
         else ctx.lineTo(x, y);
       }
       ctx.strokeStyle = color;
       const base = key === "flat_LCDM" ? 2.2 : 1.4;
       ctx.lineWidth = lw ?? base;
       ctx.stroke();
+      ctx.restore();
     }
     drawCurve("EdS", "#c2410c");
     drawCurve("open_matter", "#78716c");
@@ -201,18 +211,28 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
 
     const n = curves.EdS.length;
     function drawResCurve(modelKey: keyof typeof curves, color: string, lw: number) {
+      ctx.save();
       ctx.beginPath();
+      ctx.rect(padL, padT, iw, ih);
+      ctx.clip();
+      ctx.beginPath();
+      let started = false;
       for (let i = 0; i < n; i++) {
         const z = curves.EdS[i].z;
+        if (z < Z_AXIS.min || z > Z_AXIS.max) continue;
         const r = muResidualCurve(curves, modelKey, i);
         const x = padL + xHubble(z, iw);
         const y = padT + yResid(r, ih, lo, hi);
-        if (i === 0) ctx.moveTo(x, y);
+        if (!started) {
+          ctx.moveTo(x, y);
+          started = true;
+        }
         else ctx.lineTo(x, y);
       }
       ctx.strokeStyle = color;
       ctx.lineWidth = lw;
       ctx.stroke();
+      ctx.restore();
     }
     drawResCurve("EdS", "#c2410c", 1.2);
     drawResCurve("open_matter", "#78716c", 1.2);

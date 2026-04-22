@@ -92,32 +92,6 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
 
   return (
     <div className="space-y-3">
-      <p className="text-base text-stone-600 md:text-lg">
-        Drag the vertical line to the <strong className="text-stone-900">peak of the Hα emission spike</strong> (compare to your table after locking).
-      </p>
-      <canvas
-        ref={canvasRef}
-        width={640}
-        height={220}
-        className="w-full max-w-[640px] touch-none rounded-lg border border-stone-200 bg-[#f0eeeb]"
-        onPointerDown={(e) => {
-          setDragging(true);
-          (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
-          setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
-        }}
-        onPointerMove={(e) => {
-          if (!dragging) return;
-          setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
-        }}
-        onPointerUp={() => setDragging(false)}
-      />
-      <p className="text-base text-stone-700 md:text-lg">
-        Line you marked: <span className="font-mono text-stone-900">{lineLambda.toFixed(1)} Å</span> (observed in the telescope). That implies z<sub>meas</sub> ={" "}
-        <span className="font-mono text-stone-900">{zMeas.toFixed(4)}</span> using the steps below. The{" "}
-        <strong className="text-stone-900">vertical guide</strong> on the Hubble panel tracks this z. After you lock, the final dot still uses the survey’s z<sub>obs</sub> ={" "}
-        <span className="font-mono text-stone-800">{sn.z_obs.toFixed(4)}</span>.
-      </p>
-
       <div className="rounded-xl border border-stone-200 bg-stone-50/90 p-4 md:p-5">
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">How that Ångström value becomes a redshift</h4>
         <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
@@ -145,14 +119,40 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
         </p>
       </div>
 
-      <button
-        type="button"
-        disabled={!ok}
-        onClick={() => onLocked(zMeas)}
-        className="font-ui rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Lock redshift
-      </button>
+      <div className="space-y-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm md:p-5">
+        <p className="text-base text-stone-600 md:text-lg">
+          Drag the vertical line to the <strong className="text-stone-900">peak of the Hα emission spike</strong> (compare to your table after locking).
+        </p>
+        <canvas
+          ref={canvasRef}
+          width={640}
+          height={220}
+          className="w-full max-w-[640px] touch-none rounded-lg border border-stone-200 bg-[#f0eeeb]"
+          onPointerDown={(e) => {
+            setDragging(true);
+            (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
+            setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
+          }}
+          onPointerMove={(e) => {
+            if (!dragging) return;
+            setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
+          }}
+          onPointerUp={() => setDragging(false)}
+        />
+        <p className="text-base text-stone-700 md:text-lg">
+          Line you marked: <span className="font-mono text-stone-900">{lineLambda.toFixed(1)} Å</span> (observed in the telescope). That implies z<sub>meas</sub> ={" "}
+          <span className="font-mono text-stone-900">{zMeas.toFixed(4)}</span>. The <strong className="text-stone-900">vertical guide</strong> on the Hubble panel tracks this z. After you lock, the final dot still uses the survey’s z<sub>obs</sub> ={" "}
+          <span className="font-mono text-stone-800">{sn.z_obs.toFixed(4)}</span>.
+        </p>
+        <button
+          type="button"
+          disabled={!ok}
+          onClick={() => onLocked(zMeas)}
+          className="font-ui w-fit rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Lock redshift
+        </button>
+      </div>
     </div>
   );
 }

@@ -172,48 +172,55 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
 
   return (
     <div className="space-y-3">
-      <canvas ref={canvasRef} width={640} height={220} className="w-full max-w-[640px] rounded-lg border border-stone-200 bg-[#f0eeeb]" />
-      <div className="max-w-[640px] space-y-3 rounded-xl border border-stone-200 bg-stone-50/90 p-4 md:p-5">
-        <p className="text-base leading-relaxed text-stone-600 md:text-lg">
-          <strong className="text-stone-900">What the dark dots are:</strong> each dot is <strong>one night’s measurement</strong> of the{" "}
-          <em>same</em> supernova — same explosion, different evening. You keep pointing the telescope at the field, record how bright it looks, and move on to the next cadence. The horizontal axis is <em>which</em> night (relative to brightest night); the vertical axis is <em>how bright</em> it looked that night. Together they sketch one object brightening toward a peak and then fading.
-        </p>
-        <p className="text-base leading-relaxed text-stone-600 md:text-lg">
-          <strong className="text-stone-900">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-stone-800">m</span> at the{" "}
-          <strong>peak</strong> (around day 0) — the moment it was intrinsically hottest as seen from Earth. After you fit the blue template, the <strong className="text-amber-900">orange dot</strong> marks that peak; the label reminds you that <strong className="text-stone-900">this one m</strong> is what feeds{" "}
-          <span className="font-mono text-stone-800">μ = m − M</span>. All the other dots exist so you are not guessing the peak from a lucky single snapshot halfway down the decline.
-        </p>
-        <p className="text-sm text-stone-500 md:text-base">
-          Reminder: magnitudes run backward — <strong className="text-stone-700">smaller m = brighter</strong> (same as the “↑ brighter” cue on the plot).
-        </p>
+      <div className="max-w-[640px] rounded-xl border border-stone-200 bg-stone-50/90 p-4 md:p-5">
+        <ul className="space-y-3 pl-5 text-base leading-relaxed text-stone-600 md:text-lg list-disc">
+          <li>
+            <strong className="text-stone-900">What the dark dots are:</strong> each dot is <strong>one night’s measurement</strong> of the <em>same</em> supernova, with horizontal position showing <em>which</em> night and vertical position showing <em>how bright</em> it looked.
+          </li>
+          <li>
+            <strong className="text-stone-900">What the full set of dots shows:</strong> together they sketch one object brightening toward a peak and then fading.
+          </li>
+          <li>
+            <strong className="text-stone-900">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-stone-800">m</span> at the <strong>peak</strong> (around day 0), not every dot on the curve.
+          </li>
+          <li>
+            <strong className="text-stone-900">What the orange dot means:</strong> after you fit the blue template, it marks the peak that feeds <span className="font-mono text-stone-800">μ = m − M</span>.
+          </li>
+          <li className="text-sm text-stone-500 md:text-base">
+            <strong className="text-stone-700">Reminder:</strong> magnitudes run backward, so <strong className="text-stone-700">smaller m = brighter</strong>.
+          </li>
+        </ul>
       </div>
-      <div className="font-ui flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setShowTemplate(true)}
-          className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50"
-        >
-          Fit template
-        </button>
-        <button
-          type="button"
-          disabled={!showTemplate}
-          onClick={() => {
-            setShowPeak(true);
-            onPeakRead?.({ m: mPeak, muFromM: muShown });
-          }}
-          className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50 disabled:opacity-40"
-        >
-          Read peak magnitude
-        </button>
-        <button
-          type="button"
-          disabled={!showPeak}
-          onClick={onContinue}
-          className="rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800 disabled:opacity-40"
-        >
-          Add to Hubble diagram
-        </button>
+      <div className="max-w-[640px] space-y-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm md:p-5">
+        <canvas ref={canvasRef} width={640} height={220} className="w-full max-w-[640px] rounded-lg border border-stone-200 bg-[#f0eeeb]" />
+        <div className="font-ui flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setShowTemplate(true)}
+            className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50"
+          >
+            Fit template
+          </button>
+          <button
+            type="button"
+            disabled={!showTemplate}
+            onClick={() => {
+              setShowPeak(true);
+              onPeakRead?.({ m: mPeak, muFromM: muShown });
+            }}
+            className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50 disabled:opacity-40"
+          >
+            Read peak magnitude
+          </button>
+          <button
+            type="button"
+            disabled={!showPeak}
+            onClick={onContinue}
+            className="rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800 disabled:opacity-40"
+          >
+            Add to Hubble diagram
+          </button>
+        </div>
       </div>
       {showPeak ? (
         <p className="text-sm text-stone-600">

@@ -19,7 +19,16 @@ export const DISCOVERY = [
   },
   {
     title: "3 · Click the residual in the difference image",
-    body: "Confirm the transient on the residual map — not by hunting the field in the new epoch alone. Once the clean point source is marked, the team would queue spectroscopy and multi-color follow-up. (Position is seeded from the supernova name so each object feels distinct.)",
+    body: [
+      "Take a template image of the field.",
+      "Take a new-epoch image of that same field a few weeks later.",
+      "Align the images, match their PSFs, and normalize the flux scale.",
+      "Subtract template from new epoch so the static stars and galaxies mostly cancel away.",
+      "What remains is the residual map: anything that changed between the two visits.",
+      "Confirm the transient on that residual map, not by hunting the field in the new image alone.",
+      "Once the clean point source is marked, the team would queue spectroscopy and multi-color follow-up.",
+      "(Position is seeded from the supernova name so each object feels distinct.)",
+    ],
   },
 ];
 
@@ -41,7 +50,14 @@ export const SPECTRUM = [
 export const LIGHTCURVE = [
   {
     title: "1 · Watch it brighten, then fade",
-    body: "You never measure a supernova once and walk away. Teams go back every few nights for weeks, take another picture through the same filter, and ask “how bright does the same explosion look tonight?” Each answer is one dot: same object, different night. Horizontal position is which night (days before or after peak); vertical position is how bright it appeared that night. Together the dots trace one rise and fall. The single number m you care for distance is only the brightness at the very top of that bump (around day 0) — not every dot’s magnitude.",
+    body: [
+      "Teams go back every few nights for weeks and take another image through the same filter.",
+      "Each dot is one measurement of the same supernova on a different night.",
+      "Horizontal position is which night it was observed (days before or after peak).",
+      "Vertical position is how bright it looked that night.",
+      "Together the dots trace one rise and fall.",
+      "The single number m you care about for distance is only the brightness at the very top of that bump (around day 0), not every dot's magnitude.",
+    ],
   },
   {
     title: "2 · From “how faint it looks” to distance",
@@ -49,6 +65,11 @@ export const LIGHTCURVE = [
   },
   {
     title: "3 · Add the point to the Hubble diagram",
-    body: "Remember: many noisy dots on the light curve are many nights of the same event; the Hubble diagram needs one peak m (and a redshift) per object. After you lock in the story for this object, the game drops a point using the survey’s full reduction (z_obs, μ_obs). Many such points compared to curved predictions from different universes — that ensemble comparison, not any single supernova — is what made the dark-energy case.",
+    body: [
+      "Many noisy dots on the light curve are many nights of the same event.",
+      "The Hubble diagram needs one peak m and one redshift per object.",
+      "After you finish this object, the game drops a point using the survey’s full reduction (z_obs, μ_obs).",
+      "The dark-energy result comes from comparing many such points to different cosmological curves, not from any single supernova.",
+    ],
   },
 ];
