@@ -44,67 +44,68 @@ export function SpectrumHalphaDiagram() {
   const obsPath = spectrumTopPath(peakObsDemo, Y_BASE_OBS);
 
   return (
-    <figure className="rounded-xl border border-sky-500/20 bg-slate-950/90 p-5 shadow-inner">
-      <figcaption className="mb-4 text-center text-base font-semibold text-slate-200 md:text-lg">
+    <figure className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
+      <figcaption className="mb-4 text-center text-base font-semibold text-stone-900 md:text-lg">
         Hydrogen Hα — a bright emission line astronomers use as a ruler
       </figcaption>
       <svg viewBox="0 0 520 240" className="mx-auto h-auto w-full max-w-[520px]" role="img" aria-label="Schematic Hα spectrum at rest and redshifted">
         <defs>
           <linearGradient id="halphaFillRest" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgb(56, 189, 248)" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="rgb(125, 211, 252)" stopOpacity="0.35" />
+            <stop offset="0%" stopColor="rgb(37, 99, 235)" stopOpacity="0.08" />
+            <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0.22" />
           </linearGradient>
         </defs>
-        <text x="260" y="16" textAnchor="middle" fill="rgb(148,163,184)" style={{ font: "12px system-ui, sans-serif" }}>
+        <rect width="520" height="240" fill="#fafaf9" rx="8" />
+        <text x="260" y="16" textAnchor="middle" fill="rgb(87,83,78)" style={{ font: "12px var(--font-source-sans), ui-sans-serif, sans-serif" }}>
           Brightness vs wavelength (schematic only, not real data)
         </text>
 
-        <text x="12" y="34" fill="rgb(226,232,240)" style={{ font: "bold 11px system-ui, sans-serif" }}>
+        <text x="12" y="34" fill="rgb(28,25,23)" style={{ font: "bold 11px var(--font-source-sans), ui-sans-serif, sans-serif" }}>
           Rest frame (host galaxy “at birth”)
         </text>
         <path
           d={`${restPath} L ${PLOT_X1} ${Y_BASE_REST} L ${PLOT_X0} ${Y_BASE_REST} Z`}
           fill="url(#halphaFillRest)"
-          stroke="rgb(125,211,252)"
+          stroke="rgb(37, 99, 235)"
           strokeWidth="1.2"
         />
-        <line x1={PLOT_X0} y1={Y_BASE_REST} x2={PLOT_X1} y2={Y_BASE_REST} stroke="rgb(71,85,105)" strokeWidth="1" />
-        <text x="260" y={Y_BASE_REST + 14} textAnchor="middle" fill="rgb(100,116,139)" style={{ font: "10px system-ui, sans-serif" }}>
+        <line x1={PLOT_X0} y1={Y_BASE_REST} x2={PLOT_X1} y2={Y_BASE_REST} stroke="rgb(168, 162, 158)" strokeWidth="1" />
+        <text x="260" y={Y_BASE_REST + 14} textAnchor="middle" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
           emission spike at 6563 Å — rest wavelength of hydrogen Hα
         </text>
 
-        <polygon points="258,92 262,92 260,104" fill="rgb(251,191,36)" />
-        <text x="268" y="100" fill="rgb(253,224,71)" style={{ font: "bold 11px system-ui, sans-serif" }}>
+        <polygon points="258,92 262,92 260,104" fill="rgb(180, 83, 9)" />
+        <text x="268" y="100" fill="rgb(120, 53, 15)" style={{ font: "bold 11px var(--font-source-sans), sans-serif" }}>
           expanding universe slides the peak to longer λ
         </text>
 
-        <text x="12" y="152" fill="rgb(226,232,240)" style={{ font: "bold 11px system-ui, sans-serif" }}>
+        <text x="12" y="152" fill="rgb(28,25,23)" style={{ font: "bold 11px var(--font-source-sans), sans-serif" }}>
           Telescope (redshifted)
         </text>
         <path
           d={`${obsPath} L ${PLOT_X1} ${Y_BASE_OBS} L ${PLOT_X0} ${Y_BASE_OBS} Z`}
-          fill="rgba(251,191,36,0.14)"
-          stroke="rgb(251,191,36)"
+          fill="rgba(180, 83, 9, 0.12)"
+          stroke="rgb(180, 83, 9)"
           strokeWidth="1.2"
         />
-        <line x1={PLOT_X0} y1={Y_BASE_OBS} x2={PLOT_X1} y2={Y_BASE_OBS} stroke="rgb(71,85,105)" strokeWidth="1" />
-        <text x="260" y={Y_BASE_OBS + 14} textAnchor="middle" fill="rgb(100,116,139)" style={{ font: "10px system-ui, sans-serif" }}>
+        <line x1={PLOT_X0} y1={Y_BASE_OBS} x2={PLOT_X1} y2={Y_BASE_OBS} stroke="rgb(168, 162, 158)" strokeWidth="1" />
+        <text x="260" y={Y_BASE_OBS + 14} textAnchor="middle" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
           same line, stretched — measure Δλ to get z (example peak near 9385 Å for z ≈ 0.43)
         </text>
 
-        <text x={PLOT_X0} y="228" fill="rgb(100,116,139)" style={{ font: "10px system-ui, sans-serif" }}>
+        <text x={PLOT_X0} y="228" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
           {LAM_MIN} Å
         </text>
-        <text x={PLOT_X1} y="228" textAnchor="end" fill="rgb(100,116,139)" style={{ font: "10px system-ui, sans-serif" }}>
+        <text x={PLOT_X1} y="228" textAnchor="end" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
           {LAM_MAX} Å
         </text>
       </svg>
-      <ul className="mt-4 space-y-3 text-base leading-relaxed text-slate-300 md:text-lg">
+      <ul className="mt-4 space-y-3 text-base leading-relaxed text-stone-600 md:text-lg">
         <li>
-          <strong className="text-slate-100">Why hydrogen?</strong> Ionized gas in the host galaxy produces a strong Hα emission line at a well-known rest wavelength (6563 Å). It stands out above the continuum and is easy to recognize when cleaning noisy spectra.
+          <strong className="text-stone-900">Why hydrogen?</strong> Ionized gas in the host galaxy produces a strong Hα emission line at a well-known rest wavelength (6563 Å). It stands out above the continuum and is easy to recognize when cleaning noisy spectra.
         </li>
         <li>
-          <strong className="text-slate-100">Why it is useful:</strong> That rest wavelength is fixed in physics. If the line appears redder than 6563 Å, cosmic expansion stretched the whole spectrum in flight — and the factor (1 + z) you read off the wavelength axis is exactly what you need for the Hubble diagram step.
+          <strong className="text-stone-900">Why it is useful:</strong> That rest wavelength is fixed in physics. If the line appears redder than 6563 Å, cosmic expansion stretched the whole spectrum in flight — and the factor (1 + z) you read off the wavelength axis is exactly what you need for the Hubble diagram step.
         </li>
       </ul>
     </figure>

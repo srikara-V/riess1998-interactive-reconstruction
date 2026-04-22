@@ -194,23 +194,23 @@ export function DiscoveryInteractive({ snName, mApparent, onFound }: Props) {
   }, [geo, snName, snVis]);
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div className="font-ui grid grid-cols-1 gap-4 md:grid-cols-3">
       <div className="text-center">
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Template</h3>
-        <canvas ref={templateRef} width={geo.w} height={geo.h} className="mx-auto w-full max-w-[360px] rounded-lg border border-white/10 bg-black" />
+        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">Template</h3>
+        <canvas ref={templateRef} width={geo.w} height={geo.h} className="mx-auto w-full max-w-[360px] rounded-lg border border-stone-200 bg-black" />
       </div>
       <div className="text-center">
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">New epoch</h3>
-        <canvas ref={newRef} width={geo.w} height={geo.h} className="mx-auto w-full max-w-[360px] rounded-lg border border-white/10 bg-black" />
+        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-500">New epoch</h3>
+        <canvas ref={newRef} width={geo.w} height={geo.h} className="mx-auto w-full max-w-[360px] rounded-lg border border-stone-200 bg-black" />
       </div>
       <div className="text-center">
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-200/90">Difference</h3>
-        <p className="mb-1 text-[10px] leading-tight text-slate-500">new − template (residual)</p>
+        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-900">Difference</h3>
+        <p className="mb-1 text-[10px] leading-tight text-stone-500">new − template (residual)</p>
         <canvas
           ref={diffRef}
           width={geo.w}
           height={geo.h}
-          className="mx-auto w-full max-w-[360px] cursor-crosshair rounded-lg border border-amber-400/35 bg-black shadow-[0_0_0_1px_rgba(251,191,36,0.12)]"
+          className="mx-auto w-full max-w-[360px] cursor-crosshair rounded-lg border border-amber-700/35 bg-black shadow-sm"
           onClick={(ev) => {
             const c = ev.currentTarget;
             const rect = c.getBoundingClientRect();

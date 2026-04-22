@@ -54,7 +54,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     const o = setupCanvas(canvas, 280);
     if (!o) return;
     const { ctx, w, h } = o;
-    ctx.fillStyle = "#0a0d12";
+    ctx.fillStyle = "#f0eeeb";
     ctx.fillRect(0, 0, w, h);
     const padL = 44,
       padR = 12,
@@ -66,12 +66,12 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     for (let i = 0; i <= 4; i++) {
       const mu = MU_AXIS.min + (i / 4) * (MU_AXIS.max - MU_AXIS.min);
       const y = padT + yHubble(mu, ih);
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.strokeStyle = "rgba(28,25,23,0.07)";
       ctx.beginPath();
       ctx.moveTo(padL, y);
       ctx.lineTo(padL + iw, y);
       ctx.stroke();
-      ctx.fillStyle = "#6b7788";
+      ctx.fillStyle = "#57534e";
       ctx.font = "10px system-ui";
       ctx.fillText(mu.toFixed(0), 4, y + 3);
     }
@@ -79,12 +79,12 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     ctx.textAlign = "center";
     for (const zt of zTicks) {
       const x = padL + xHubble(zt, iw);
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.strokeStyle = "rgba(28,25,23,0.06)";
       ctx.beginPath();
       ctx.moveTo(x, padT);
       ctx.lineTo(x, padT + ih);
       ctx.stroke();
-      ctx.fillStyle = "#6b7788";
+      ctx.fillStyle = "#57534e";
       ctx.fillText(zt >= 0.1 ? zt.toFixed(1) : zt.toFixed(2), x, padT + ih + 22);
     }
 
@@ -104,9 +104,9 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       ctx.lineWidth = lw ?? base;
       ctx.stroke();
     }
-    drawCurve("EdS", "#ff9b6b");
-    drawCurve("open_matter", "#9aa3b2");
-    drawCurve("flat_LCDM", "#8fd4ff", highlightLCDM ? 4.5 : 2.2);
+    drawCurve("EdS", "#c2410c");
+    drawCurve("open_matter", "#78716c");
+    drawCurve("flat_LCDM", "#2563eb", highlightLCDM ? 4.5 : 2.2);
 
     for (const p of observations) {
       const x = padL + xHubble(p.z_obs, iw);
@@ -114,12 +114,12 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       const sig = p.sigma_mu;
       const yTop = padT + yHubble(p.mu_obs + sig, ih);
       const yBot = padT + yHubble(p.mu_obs - sig, ih);
-      ctx.strokeStyle = "rgba(232,237,244,0.55)";
+      ctx.strokeStyle = "rgba(68,64,60,0.45)";
       ctx.beginPath();
       ctx.moveTo(x, yTop);
       ctx.lineTo(x, yBot);
       ctx.stroke();
-      ctx.fillStyle = p.flash ? "#ffffff" : "#e8edf4";
+      ctx.fillStyle = p.flash ? "#0c0a09" : "#292524";
       ctx.beginPath();
       ctx.arc(x, y, p.flash ? 6 : 3.5, 0, Math.PI * 2);
       ctx.fill();
@@ -128,7 +128,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     if (previewZ != null && Number.isFinite(previewZ)) {
       const xv = padL + xHubble(previewZ, iw);
       ctx.save();
-      ctx.strokeStyle = "rgba(110, 200, 255, 0.85)";
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.75)";
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
@@ -140,7 +140,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     if (previewMu != null && Number.isFinite(previewMu)) {
       const yh = padT + yHubble(previewMu, ih);
       ctx.save();
-      ctx.strokeStyle = "rgba(255, 200, 120, 0.9)";
+      ctx.strokeStyle = "rgba(180, 83, 9, 0.75)";
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
@@ -150,7 +150,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       ctx.restore();
     }
 
-    ctx.fillStyle = "#9aa3b2";
+    ctx.fillStyle = "#44403c";
     ctx.font = "11px system-ui";
     ctx.textAlign = "left";
     ctx.fillText("μ (distance modulus)", padL, padT - 2);
@@ -164,7 +164,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     const o = setupCanvas(canvas, 160);
     if (!o) return;
     const { ctx, w, h } = o;
-    ctx.fillStyle = "#0a0d12";
+    ctx.fillStyle = "#f0eeeb";
     ctx.fillRect(0, 0, w, h);
     const padL = 44,
       padR = 12,
@@ -180,17 +180,17 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     for (let i = 0; i <= 4; i++) {
       const r = lo + (i / 4) * (hi - lo);
       const y = padT + yResid(r, ih, lo, hi);
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.strokeStyle = "rgba(28,25,23,0.07)";
       ctx.beginPath();
       ctx.moveTo(padL, y);
       ctx.lineTo(padL + iw, y);
       ctx.stroke();
-      ctx.fillStyle = "#6b7788";
+      ctx.fillStyle = "#57534e";
       ctx.font = "10px system-ui";
       ctx.textAlign = "left";
       ctx.fillText(r.toFixed(2), 4, y + 3);
     }
-    ctx.strokeStyle = "rgba(110,181,255,0.35)";
+    ctx.strokeStyle = "rgba(37, 99, 235, 0.35)";
     ctx.setLineDash([4, 4]);
     const y0 = padT + yResid(0, ih, lo, hi);
     ctx.beginPath();
@@ -214,14 +214,14 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       ctx.lineWidth = lw;
       ctx.stroke();
     }
-    drawResCurve("EdS", "#ff9b6b", 1.2);
-    drawResCurve("open_matter", "#9aa3b2", 1.2);
-    drawResCurve("flat_LCDM", "#8fd4ff", highlightLCDM ? 3 : 1.6);
+    drawResCurve("EdS", "#c2410c", 1.2);
+    drawResCurve("open_matter", "#78716c", 1.2);
+    drawResCurve("flat_LCDM", "#2563eb", highlightLCDM ? 3 : 1.6);
 
     for (const p of observations) {
       const x = padL + xHubble(p.z_obs, iw);
       const y = padT + yResid(p.residual, ih, lo, hi);
-      ctx.fillStyle = p.flash ? "#ffffff" : "#e8edf4";
+      ctx.fillStyle = p.flash ? "#0c0a09" : "#292524";
       ctx.beginPath();
       ctx.arc(x, y, p.flash ? 5 : 3, 0, Math.PI * 2);
       ctx.fill();
@@ -230,7 +230,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     if (previewZ != null && Number.isFinite(previewZ)) {
       const xv = padL + xHubble(previewZ, iw);
       ctx.save();
-      ctx.strokeStyle = "rgba(110, 200, 255, 0.85)";
+      ctx.strokeStyle = "rgba(59, 130, 246, 0.75)";
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
@@ -242,7 +242,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     if (previewResidual != null && Number.isFinite(previewResidual)) {
       const yr = padT + yResid(previewResidual, ih, lo, hi);
       ctx.save();
-      ctx.strokeStyle = "rgba(255, 200, 120, 0.9)";
+      ctx.strokeStyle = "rgba(180, 83, 9, 0.75)";
       ctx.lineWidth = 1.5;
       ctx.setLineDash([6, 5]);
       ctx.beginPath();
@@ -252,7 +252,7 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       ctx.restore();
     }
 
-    ctx.fillStyle = "#9aa3b2";
+    ctx.fillStyle = "#44403c";
     ctx.font = "10px system-ui";
     ctx.textAlign = "left";
     ctx.fillText("Δμ vs open matter", padL, padT - 2);
@@ -261,27 +261,27 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
   const showPreviewNote = previewZ != null || previewMu != null;
 
   return (
-    <div className="space-y-2 rounded-xl border border-white/10 bg-slate-950/80 p-3">
+    <div className="font-ui space-y-2 rounded-xl border border-stone-200 bg-white p-3 shadow-sm">
       {showPreviewNote ? (
-        <p className="text-[11px] leading-snug text-sky-200/90">
-          Dashed guides: <span className="text-sky-300">vertical</span> = your locked <span className="font-mono">z</span> on the x-axis;{" "}
-          <span className="text-amber-200">horizontal</span> = your <span className="font-mono">μ = m − M</span> on the y-axis (residual panel uses Δμ vs open matter at that{" "}
+        <p className="text-[11px] leading-snug text-stone-600">
+          Dashed guides: <span className="font-medium text-stone-900">vertical</span> = your locked <span className="font-mono">z</span> on the x-axis;{" "}
+          <span className="font-medium text-stone-900">horizontal</span> = your <span className="font-mono">μ = m − M</span> on the y-axis (residual panel uses Δμ vs open matter at that{" "}
           <span className="font-mono">z</span>).
         </p>
       ) : null}
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Distance modulus vs redshift</div>
-      <canvas ref={refH} className="h-[280px] w-full rounded-lg bg-[#0a0d12]" />
-      <div className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Residuals vs Ω_m=0.3, Ω_Λ=0</div>
-      <canvas ref={refR} className="h-[160px] w-full rounded-lg bg-[#0a0d12]" />
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-stone-500">Distance modulus vs redshift</div>
+      <canvas ref={refH} className="h-[280px] w-full rounded-lg border border-stone-200/80 bg-[#f0eeeb]" />
+      <div className="text-[10px] font-semibold uppercase tracking-widest text-stone-500">Residuals vs Ω_m=0.3, Ω_Λ=0</div>
+      <canvas ref={refR} className="h-[160px] w-full rounded-lg border border-stone-200/80 bg-[#f0eeeb]" />
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-stone-600">
         <span className="inline-flex items-center gap-1">
-          <span className="h-0.5 w-3 rounded bg-[#ff9b6b]" /> EdS
+          <span className="h-0.5 w-3 rounded bg-[#c2410c]" /> EdS
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-0.5 w-3 rounded bg-[#9aa3b2]" /> open matter
+          <span className="h-0.5 w-3 rounded bg-[#78716c]" /> open matter
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="h-0.5 w-3 rounded bg-[#6eb5ff]" /> flat ΛCDM
+          <span className="h-0.5 w-3 rounded bg-[#2563eb]" /> flat ΛCDM
         </span>
       </div>
     </div>

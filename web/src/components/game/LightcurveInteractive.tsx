@@ -58,10 +58,10 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
     const yLc = (m: number) => padT + ih * ((m - mMin) / (mMax - mMin || 1));
     const xT = (t: number) => padL + ((t - tMin) / (tMax - tMin)) * iw;
 
-    ctx.fillStyle = "#05070a";
+    ctx.fillStyle = "#f0eeeb";
     ctx.fillRect(0, 0, w, h);
 
-    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.strokeStyle = "rgba(28,25,23,0.12)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(padL, padT + ih);
@@ -73,26 +73,26 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
     for (let i = 0; i <= 5; i++) {
       const m = mMin + (i / 5) * (mMax - mMin);
       const y = yLc(m);
-      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.strokeStyle = "rgba(28,25,23,0.06)";
       ctx.beginPath();
       ctx.moveTo(padL, y);
       ctx.lineTo(padL + iw, y);
       ctx.stroke();
-      ctx.fillStyle = "#6b7788";
+      ctx.fillStyle = "#57534e";
       ctx.font = "10px system-ui";
       ctx.textAlign = "right";
       ctx.fillText(m.toFixed(2), padL - 8, y + 3);
     }
     ctx.textAlign = "start";
 
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = "#57534e";
     ctx.font = "11px system-ui,sans-serif";
     ctx.fillText("↑ brighter", padL + 4, padT + 2);
 
     ctx.save();
     ctx.translate(14, padT + ih / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = "#57534e";
     ctx.font = "11px system-ui,sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Apparent magnitude (m)", 0, 0);
@@ -104,7 +104,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
     ctx.textAlign = "center";
     for (const tv of xTicks) {
       const x = xT(tv);
-      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.strokeStyle = "rgba(28,25,23,0.1)";
       ctx.beginPath();
       ctx.moveTo(x, padT + ih);
       ctx.lineTo(x, padT + ih + 4);
@@ -113,7 +113,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
     }
     ctx.textAlign = "start";
 
-    ctx.fillStyle = "#94a3b8";
+    ctx.fillStyle = "#57534e";
     ctx.font = "11px system-ui,sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("Days relative to maximum brightness", padL + iw / 2, h - 10);
@@ -129,7 +129,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
         if (t === tMin) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
-      ctx.strokeStyle = "rgba(110,181,255,0.45)";
+      ctx.strokeStyle = "rgba(37, 99, 235, 0.55)";
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
@@ -138,21 +138,21 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
       const peakY = yLc(mPeak + dm0);
       ctx.beginPath();
       ctx.arc(peakX, peakY, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(251,191,36,0.95)";
+      ctx.fillStyle = "rgba(180, 83, 9, 0.95)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(251,191,36,0.65)";
+      ctx.strokeStyle = "rgba(120, 53, 15, 0.75)";
       ctx.lineWidth = 1.2;
       ctx.stroke();
 
       const lx = Math.min(peakX + 52, padL + iw - 8);
       const ly = Math.max(peakY - 38, padT + 14);
-      ctx.strokeStyle = "rgba(251,191,36,0.5)";
+      ctx.strokeStyle = "rgba(180, 83, 9, 0.45)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(peakX + 5, peakY - 4);
       ctx.lineTo(lx - 4, ly + 12);
       ctx.stroke();
-      ctx.fillStyle = "#e2e8f0";
+      ctx.fillStyle = "#44403c";
       ctx.font = "bold 11px system-ui,sans-serif";
       ctx.textAlign = "left";
       ctx.fillText("peak m → distance", lx, ly);
@@ -161,7 +161,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
     for (const p of pts) {
       const x = xT(p.t);
       const y = yLc(p.mObs);
-      ctx.fillStyle = "#e8edf4";
+      ctx.fillStyle = "#292524";
       ctx.beginPath();
       ctx.arc(x, y, 3.2, 0, Math.PI * 2);
       ctx.fill();
@@ -172,23 +172,27 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
 
   return (
     <div className="space-y-3">
-      <canvas ref={canvasRef} width={640} height={220} className="w-full max-w-[640px] rounded-lg border border-white/10 bg-black" />
-      <div className="max-w-[640px] space-y-3 rounded-xl border border-white/10 bg-slate-950/70 p-4 md:p-5">
-        <p className="text-base leading-relaxed text-slate-200 md:text-lg">
-          <strong className="text-slate-50">What the white dots are:</strong> each dot is <strong>one night’s measurement</strong> of the{" "}
+      <canvas ref={canvasRef} width={640} height={220} className="w-full max-w-[640px] rounded-lg border border-stone-200 bg-[#f0eeeb]" />
+      <div className="max-w-[640px] space-y-3 rounded-xl border border-stone-200 bg-stone-50/90 p-4 md:p-5">
+        <p className="text-base leading-relaxed text-stone-600 md:text-lg">
+          <strong className="text-stone-900">What the dark dots are:</strong> each dot is <strong>one night’s measurement</strong> of the{" "}
           <em>same</em> supernova — same explosion, different evening. You keep pointing the telescope at the field, record how bright it looks, and move on to the next cadence. The horizontal axis is <em>which</em> night (relative to brightest night); the vertical axis is <em>how bright</em> it looked that night. Together they sketch one object brightening toward a peak and then fading.
         </p>
-        <p className="text-base leading-relaxed text-slate-200 md:text-lg">
-          <strong className="text-slate-50">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-sky-200/90">m</span> at the{" "}
-          <strong>peak</strong> (around day 0) — the moment it was intrinsically hottest as seen from Earth. After you fit the blue template, the <strong className="text-amber-200/90">orange dot</strong> marks that peak; the label reminds you that <strong className="text-slate-50">this one m</strong> is what feeds{" "}
-          <span className="font-mono text-slate-200">μ = m − M</span>. All the other dots exist so you are not guessing the peak from a lucky single snapshot halfway down the decline.
+        <p className="text-base leading-relaxed text-stone-600 md:text-lg">
+          <strong className="text-stone-900">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-stone-800">m</span> at the{" "}
+          <strong>peak</strong> (around day 0) — the moment it was intrinsically hottest as seen from Earth. After you fit the blue template, the <strong className="text-amber-900">orange dot</strong> marks that peak; the label reminds you that <strong className="text-stone-900">this one m</strong> is what feeds{" "}
+          <span className="font-mono text-stone-800">μ = m − M</span>. All the other dots exist so you are not guessing the peak from a lucky single snapshot halfway down the decline.
         </p>
-        <p className="text-sm text-slate-500 md:text-base">
-          Reminder: magnitudes run backward — <strong className="text-slate-300">smaller m = brighter</strong> (same as the “↑ brighter” cue on the plot).
+        <p className="text-sm text-stone-500 md:text-base">
+          Reminder: magnitudes run backward — <strong className="text-stone-700">smaller m = brighter</strong> (same as the “↑ brighter” cue on the plot).
         </p>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setShowTemplate(true)} className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base">
+      <div className="font-ui flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setShowTemplate(true)}
+          className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50"
+        >
           Fit template
         </button>
         <button
@@ -198,7 +202,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
             setShowPeak(true);
             onPeakRead?.({ m: mPeak, muFromM: muShown });
           }}
-          className="rounded-lg border border-white/15 bg-slate-800 px-5 py-2.5 text-base disabled:opacity-40"
+          className="rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-base font-medium text-stone-800 shadow-sm hover:bg-stone-50 disabled:opacity-40"
         >
           Read peak magnitude
         </button>
@@ -206,16 +210,16 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
           type="button"
           disabled={!showPeak}
           onClick={onContinue}
-          className="rounded-lg bg-sky-700 px-5 py-2.5 text-base font-medium text-white disabled:opacity-40"
+          className="rounded-lg bg-stone-900 px-5 py-2.5 text-base font-semibold text-white shadow hover:bg-stone-800 disabled:opacity-40"
         >
           Add to Hubble diagram
         </button>
       </div>
       {showPeak ? (
-        <p className="text-sm text-slate-200">
-          Peak <span className="font-mono text-sky-300">m = {mPeak.toFixed(2)}</span> →{" "}
-          <span className="font-mono text-sky-300">μ = m − M ≈ {muShown.toFixed(2)}</span> with <span className="font-mono">M = {M_REF}</span>. The{" "}
-          <strong className="text-amber-200/90">horizontal guide</strong> on the Hubble panel marks this μ. The final plotted point uses the survey’s noisy{" "}
+        <p className="text-sm text-stone-600">
+          Peak <span className="font-mono text-stone-900">m = {mPeak.toFixed(2)}</span> →{" "}
+          <span className="font-mono text-stone-900">μ = m − M ≈ {muShown.toFixed(2)}</span> with <span className="font-mono">M = {M_REF}</span>. The{" "}
+          <strong className="text-amber-900">horizontal guide</strong> on the Hubble panel marks this μ. The final plotted point uses the survey’s noisy{" "}
           <span className="font-mono">μ_obs = {sn.mu_obs.toFixed(2)}</span>.
         </p>
       ) : null}
