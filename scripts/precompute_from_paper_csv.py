@@ -5,7 +5,7 @@ Read data/paper_data.csv (supernova truth table) and write:
   - data/precomputation.csv — one row per supernova (noise, models at that z, χ², etc.)
   - data/model_curves.csv — dense μ(z) curves for the three cosmologies (default)
   - data/light_curve_template.csv — shared Type Ia B-band-ish shape (Δm vs phase)
-  - data/spectrum_template_rest.csv — rest-frame continuum + Ca II dip (shift per SN in-game)
+  - data/spectrum_template_rest.csv — rest-frame continuum + Hα emission spike (shift per SN in-game)
 
 Cosmology conventions (flat FRW + open matter-only third curve):
   - EdS:              Omega_m=1.0, Omega_Lambda=0.0, Omega_k=0
@@ -27,7 +27,7 @@ from typing import Dict, List, Optional, Sequence, Tuple, cast
 
 # --- constants (match typical course / Riess-style plots) ---
 C_KM_S = 299_792.458  # speed of light km/s
-CA2_REST_A = 3934.0  # Ca II K-ish rest wavelength (Angstrom); pedagogical round number
+HALPHA_REST_A = 6563.0  # Hα rest wavelength (Å); pedagogical round number
 M_REF_TYPE_IA = -19.3  # standard candle absolute magnitude reference for consistency checks
 
 REQUIRED_INPUT_FIELDS = (
@@ -37,7 +37,7 @@ REQUIRED_INPUT_FIELDS = (
     "mu_true",
     "sigma_mu",
     "m_apparent",
-    "lambda_CaII",
+    "lambda_Halpha",
     "sample_type",
     "quality",
     "sequence_order",
@@ -238,26 +238,25 @@ def write_light_curve_template_csv(path: str, *, t_min: float = -30.0, t_max: fl
             t += dt
 
 
-def spectrum_flux_rest(wavelength_A: float, *, line_center_A: float = CA2_REST_A, depth: float = 0.38, sigma_A: float = 42.0) -> float:
-    """Rest-frame normalized flux with a single Gaussian absorption (Ca II K-ish)."""
-    return 1.0 - depth * math.exp(-0.5 * ((wavelength_A - line_center_A) / sigma_A) ** 2)
+def spectrum_flux_rest(wavelength_A: float, *, line_center_A: float = HALPHA_REST_A, depth: float = 0.38, sigma_A: float = 42.0) -> float:
+    """Rest-frame normalized flux with a single Gaussian emission line (Hα)."""
+    return 1.0 + depth * math.exp(-0.5 * ((wavelength_A - line_center_A) / sigma_A) ** 2)
 
 
 def write_spectrum_template_rest_csv(
     path: str,
     *,
-    wl_min: float = 3200.0,
-    wl_max: float = 6800.0,
+    wl_min: float = 5000.0,
+    wl_max: float = 11000.0,
     dwl: float = 3.0,
-    line_center_A: float = CA2_REST_A,
+    line_center_A: float = HALPHA_REST_A,
 ) -> None:
     """
-    Rest-frame template: dip centered at line_center_A (Å). In-game, plot vs observed
-    wavelength by stretching: λ_obs = λ_rest * (1 + z), which moves the dip to λ_rest*(1+z);
-    matching your per-SN lambda_CaII uses z = λ_CaII/3934 - 1.
+    Rest-frame template: emission spike centered at line_center_A (Å). In-game, plot vs observed
+    wavelength by stretching: λ_obs = λ_rest * (1 + z); per-SN lambda_Halpha matches z = λ/6563 − 1.
     """
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    fieldnames = ("lambda_rest_A", "flux_norm", "CaII_line_center_A")
+    fieldnames = ("lambda_rest_A", "flux_norm", "Halpha_line_center_A")
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
@@ -268,7 +267,7 @@ def write_spectrum_template_rest_csv(
                 {
                     "lambda_rest_A": f"{wl:.6g}",
                     "flux_norm": f"{fl:.8g}",
-                    "CaII_line_center_A": f"{line_center_A:.6g}",
+                    "Halpha_line_center_A": f"{line_center_A:.6g}",
                 }
             )
             wl += dwl
@@ -289,7 +288,7 @@ def build_supernova_output_rows(
         mu_true = ffloat(row["mu_true"], field="mu_true", row_hint=sn)
         sig = ffloat(row["sigma_mu"], field="sigma_mu", row_hint=sn)
         m_app = ffloat(row["m_apparent"], field="m_apparent", row_hint=sn)
-        lam_in = ffloat(row["lambda_CaII"], field="lambda_CaII", row_hint=sn)
+        lam_in = ffloat(row["lambda_Halpha"], field="lambda_Halpha", row_hint=sn)
         seq_raw = (row.get("sequence_order") or "").strip()
         if seq_raw == "":
             seq: Optional[int] = None
@@ -299,7 +298,7 @@ def build_supernova_output_rows(
         if sig <= 0:
             raise ValueError(f"{sn}: sigma_mu must be > 0")
 
-        lam_from_z = CA2_REST_A * (1.0 + z_true)
+        lam_from_z = HALPHA_REST_A * (1.0 + z_true)
         z_obs = z_true + rng.gauss(0.0, sigma_z)
         mu_obs = mu_true + rng.gauss(0.0, sig)
 
@@ -381,7 +380,7 @@ def build_supernova_output_rows(
             "mu_true": f"{float(r['mu_true']):.8g}",
             "sigma_mu": f"{float(r['sigma_mu']):.8g}",
             "m_apparent": f"{float(r['m_apparent']):.8g}",
-            "lambda_CaII": f"{float(r['lam_in']):.8g}",
+            "lambda_Halpha": f"{float(r['lam_in']):.8g}",
             "sample_type": row_in.get("sample_type", ""),
             "quality": row_in.get("quality", ""),
             "sequence_order": row_in.get("sequence_order", ""),
@@ -389,11 +388,11 @@ def build_supernova_output_rows(
             # global / checks
             "H0_km_s_Mpc": f"{H0:.8g}",
             "M_ref_type_Ia": f"{M_REF_TYPE_IA:.8g}",
-            "CaII_rest_A": f"{CA2_REST_A:.8g}",
+            "Halpha_rest_A": f"{HALPHA_REST_A:.8g}",
             "implied_abs_M_from_m_mu": f"{float(r['implied_abs_M']):.8g}",
             "abs_M_minus_M_ref": f"{float(r['abs_M_minus_M_ref']):.8g}",
-            "lambda_CaII_from_z_true": f"{float(r['lam_from_z']):.8g}",
-            "lambda_CaII_minus_expected": f"{float(r['lam_in']) - float(r['lam_from_z']):.8g}",
+            "lambda_Halpha_from_z_true": f"{float(r['lam_from_z']):.8g}",
+            "lambda_Halpha_minus_expected": f"{float(r['lam_in']) - float(r['lam_from_z']):.8g}",
             "flux_relative": f"{float(r['flux_relative']):.8g}",
             "sigma_z_assumed": f"{sigma_z:.8g}",
             "z_obs": f"{float(r['z_obs']):.8g}",
@@ -444,18 +443,18 @@ def write_precomputation_csv(
         "mu_true",
         "sigma_mu",
         "m_apparent",
-        "lambda_CaII",
+        "lambda_Halpha",
         "sample_type",
         "quality",
         "sequence_order",
         "sequence_order_resolved",
         "H0_km_s_Mpc",
         "M_ref_type_Ia",
-        "CaII_rest_A",
+        "Halpha_rest_A",
         "implied_abs_M_from_m_mu",
         "abs_M_minus_M_ref",
-        "lambda_CaII_from_z_true",
-        "lambda_CaII_minus_expected",
+        "lambda_Halpha_from_z_true",
+        "lambda_Halpha_minus_expected",
         "flux_relative",
         "sigma_z_assumed",
         "rng_seed",
@@ -509,7 +508,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument(
         "--output-spectrum-template",
         default=os.path.join("data", "spectrum_template_rest.csv"),
-        help="Rest-frame spectrum template (continuum + Ca II dip)",
+        help="Rest-frame spectrum template (continuum + Hα emission)",
     )
     p.add_argument("--H0", type=float, default=70.0, help="Hubble constant [km/s/Mpc]")
     p.add_argument("--sigma-z", type=float, default=0.001, dest="sigma_z", help="Gaussian noise sigma on z_obs")

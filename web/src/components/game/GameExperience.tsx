@@ -9,6 +9,7 @@ import { DiscoveryInteractive } from "./DiscoveryInteractive";
 import { HubbleDualPanel } from "./HubbleDualPanel";
 import { LightcurveInteractive } from "./LightcurveInteractive";
 import { LightcurveModulusIntro } from "./LightcurveModulusIntro";
+import { PsfMatchingAnimation } from "./PsfMatchingAnimation";
 import { SpectrumHalphaDiagram } from "./SpectrumHalphaDiagram";
 import { SpectrumInteractive } from "./SpectrumInteractive";
 
@@ -250,6 +251,9 @@ export function GameExperience() {
                     <div className="mt-6 border-t border-stone-200 pt-6">
                       <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
                       <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[1].body}</p>
+                      <div className="mt-5">
+                        <PsfMatchingAnimation />
+                      </div>
                     </div>
                   </article>
                 ) : (
