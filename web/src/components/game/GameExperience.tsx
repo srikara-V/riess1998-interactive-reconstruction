@@ -176,7 +176,11 @@ export function GameExperience() {
     );
   }
 
-  const canFastForward = phase !== "welcome" && !ended && currentIndex < bundle.supernovae.length;
+  const canFastForward =
+    phase !== "welcome" &&
+    !ended &&
+    currentIndex < bundle.supernovae.length &&
+    !(phase === "discovery" && subStep < 1);
 
   return (
     <div className="mx-auto max-w-[1400px] px-3 pb-16 pt-6 md:px-6">
@@ -198,12 +202,12 @@ export function GameExperience() {
           <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
             <h2 className="text-xl font-semibold text-stone-900 md:text-2xl">{WELCOME.title}</h2>
             {WELCOME.body.map((p) => (
-              <p key={p.slice(0, 24)} className="mt-4 text-sm leading-relaxed text-stone-600 md:text-base">
+              <p key={p.slice(0, 24)} className="mt-4 text-base leading-relaxed text-stone-600 md:text-lg">
                 {p}
               </p>
             ))}
             <div className="font-ui mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-              <p className="text-sm text-stone-600">
+              <p className="text-sm text-stone-600 md:text-base">
                 Perspective: <strong className="text-stone-900">High-z Supernova Search Team</strong> (Harvard / CfA–led collaboration).
               </p>
               <button
@@ -218,7 +222,7 @@ export function GameExperience() {
         ) : null}
 
         {phase !== "welcome" ? (
-          <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm md:p-6">
+        <section className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm md:p-6">
             <header className="font-ui mb-5 flex flex-wrap items-baseline justify-between gap-2 border-b border-stone-200 pb-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">High-z pipeline</p>
@@ -239,25 +243,36 @@ export function GameExperience() {
 
             {phase === "discovery" ? (
               <div className="space-y-4">
-                <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
-                  <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[subStep].body}</p>
-                </article>
-                {subStep === 2 ? (
-                  <DiscoveryInteractive
-                    snName={sn!.sn_name}
-                    mApparent={sn!.m_apparent}
-                    onFound={() => {
-                      showToast("Transient confirmed — queue spectrum.");
-                      setSubStep(0);
-                      setPhase("spectrum");
-                    }}
-                  />
-                ) : null}
-                {subStep < 2 ? (
+                {subStep === 0 ? (
+                  <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                    <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[0].title}</h3>
+                    <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[0].body}</p>
+                    <div className="mt-6 border-t border-stone-200 pt-6">
+                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
+                      <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[1].body}</p>
+                    </div>
+                  </article>
+                ) : (
+                  <>
+                    <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
+                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[2].title}</h3>
+                      <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{DISCOVERY[2].body}</p>
+                    </article>
+                    <DiscoveryInteractive
+                      snName={sn!.sn_name}
+                      mApparent={sn!.m_apparent}
+                      onFound={() => {
+                        showToast("Transient confirmed — queue spectrum.");
+                        setSubStep(0);
+                        setPhase("spectrum");
+                      }}
+                    />
+                  </>
+                )}
+                {subStep === 0 ? (
                   <button
                     type="button"
-                    onClick={() => setSubStep((s) => Math.min(2, s + 1))}
+                    onClick={() => setSubStep(1)}
                     className="font-ui rounded-lg border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-800 shadow-sm hover:bg-stone-50"
                   >
                     Next
@@ -350,7 +365,7 @@ export function GameExperience() {
             {phase === "reveal" ? (
               <p className="text-sm text-stone-600">Plotting precomputed μ_obs vs z_obs with error bars…</p>
             ) : null}
-          </section>
+        </section>
         ) : null}
 
         {guessPrompted ? (
