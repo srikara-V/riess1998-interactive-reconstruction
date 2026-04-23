@@ -1,6 +1,6 @@
 "use client";
 
-/** Schematic λ axis (Å) for pedagogy — roughly matching the observed optical window. */
+/** Schematic λ axis (Å) for pedagogy, roughly matching the observed optical window. */
 const LAM_MIN = 5000;
 const LAM_MAX = 10000;
 const PLOT_X0 = 56;
@@ -46,7 +46,7 @@ export function SpectrumHalphaDiagram() {
   return (
     <figure className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
       <figcaption className="mb-4 text-center text-base font-semibold text-stone-900 md:text-lg">
-        Host-galaxy Hα — a bright emission line astronomers use as a ruler
+        Host-galaxy Hα: a bright emission line astronomers use as a ruler
       </figcaption>
       <svg viewBox="0 0 520 240" className="mx-auto h-auto w-full max-w-[520px]" role="img" aria-label="Schematic Hα spectrum at rest and redshifted">
         <defs>
@@ -71,7 +71,7 @@ export function SpectrumHalphaDiagram() {
         />
         <line x1={PLOT_X0} y1={Y_BASE_REST} x2={PLOT_X1} y2={Y_BASE_REST} stroke="rgb(168, 162, 158)" strokeWidth="1" />
         <text x="260" y={Y_BASE_REST + 14} textAnchor="middle" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
-          emission spike at 6563 Å — rest wavelength of hydrogen Hα
+          emission spike at 6563 Å, the rest wavelength of hydrogen Hα
         </text>
 
         <polygon points="258,92 262,92 260,104" fill="rgb(180, 83, 9)" />
@@ -90,7 +90,7 @@ export function SpectrumHalphaDiagram() {
         />
         <line x1={PLOT_X0} y1={Y_BASE_OBS} x2={PLOT_X1} y2={Y_BASE_OBS} stroke="rgb(168, 162, 158)" strokeWidth="1" />
         <text x="260" y={Y_BASE_OBS + 14} textAnchor="middle" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
-          same line, stretched — measure Δλ to get z (example peak near 9385 Å for z ≈ 0.43)
+          same line, stretched; measure Δλ to get z (example peak near 9385 Å for z ≈ 0.43)
         </text>
 
         <text x={PLOT_X0} y="228" fill="rgb(87,83,78)" style={{ font: "10px var(--font-source-sans), sans-serif" }}>
@@ -105,7 +105,7 @@ export function SpectrumHalphaDiagram() {
           <strong className="text-stone-900">Why hydrogen?</strong> Ionized gas in the host galaxy produces a strong Hα emission line at a well-known rest wavelength (6563 Å). It stands out above the continuum and is easy to recognize when cleaning noisy spectra.
         </li>
         <li>
-          <strong className="text-stone-900">Why it is useful:</strong> That rest wavelength is fixed in physics. If the line appears redder than 6563 Å, cosmic expansion stretched the whole spectrum in flight — and the factor (1 + z) you read off the wavelength axis is exactly what you need for the Hubble diagram step.
+          <strong className="text-stone-900">Why it is useful:</strong> That rest wavelength is fixed in physics. If the line appears redder than 6563 Å, cosmic expansion stretched the whole spectrum in flight, and the factor (1 + z) you read off the wavelength axis is exactly what you need for the Hubble diagram step.
         </li>
       </ul>
     </figure>

@@ -37,11 +37,11 @@ export const DISCOVERY = [
 export const SPECTRUM = [
   {
     title: "1 · Why take a spectrum?",
-    body: "Pictures from a telescope can tell you that something got brighter — but not whether it was a real supernova, a star in our own galaxy, or something else pretending to be one. A spectrum spreads the object's light into a rainbow and reveals fingerprints of atoms and molecules. In the original surveys, the supernova spectrum was most important for classification and age-dating, while narrow host-galaxy lines often supplied the cleanest redshift. Without this check, you could standardize the wrong kind of object and poison the distance estimate before it even reaches the Hubble diagram.",
+    body: "Pictures from a telescope can tell you that something got brighter, but not whether it was a real supernova, a star in our own galaxy, or something else pretending to be one. A spectrum spreads the object's light into a rainbow and reveals fingerprints of atoms and molecules. In the original surveys, the supernova spectrum was most important for classification and age-dating, while narrow host-galaxy lines often supplied the cleanest redshift. Without this check, you could standardize the wrong kind of object and poison the distance estimate before it even reaches the Hubble diagram.",
   },
   {
     title: "2 · Hydrogen as a built-in ruler",
-    body: "Hydrogen gas in the host galaxy glows at a known wavelength — 6563 Å (Hα) — when observed nearby. When the galaxy is receding, that glow is stretched to longer wavelengths along with the rest of the spectrum. Measuring how far the emission peak shifted gives you z — which you need before you can compare brightness to distance honestly. But redshift only tells you where the object sits along the expansion axis, not how far away it is by itself.",
+    body: "Hydrogen gas in the host galaxy glows at a known wavelength, 6563 Å (Hα), when observed nearby. When the galaxy is receding, that glow is stretched to longer wavelengths along with the rest of the spectrum. Measuring how far the emission peak shifted gives you z, which you need before you can compare brightness to distance honestly. But redshift only tells you where the object sits along the expansion axis, not how far away it is by itself.",
   },
   {
     title: "3 · Lock when the match looks right",

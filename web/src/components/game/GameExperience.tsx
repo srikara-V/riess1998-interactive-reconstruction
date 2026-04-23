@@ -291,14 +291,14 @@ export function GameExperience() {
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500">High-z pipeline</p>
                 <h2 className="mt-1 text-lg font-semibold text-stone-900 md:text-xl">
-                  {phase === "discovery" && "Discovery — difference imaging"}
-                  {phase === "spectrum" && "Spectroscopy — redshift from features"}
-                  {phase === "lightcurve" && "Photometry — standardizing the candle"}
+                  {phase === "discovery" && "Discovery: difference imaging"}
+                  {phase === "spectrum" && "Spectroscopy: redshift from features"}
+                  {phase === "lightcurve" && "Photometry: standardizing the candle"}
                   {phase === "reveal" && "Hubble diagram update"}
                 </h2>
               </div>
               <p className="text-right text-sm text-stone-600">
-                Case file <span className="font-mono text-stone-900">{sn?.sn_name ?? "—"}</span>
+                Case file <span className="font-mono text-stone-900">{sn?.sn_name ?? "N/A"}</span>
                 <span className="block text-xs text-stone-500">
                   {currentIndex + 1} / {bundle.supernovae.length}
                 </span>
@@ -329,7 +329,7 @@ export function GameExperience() {
                       snName={sn!.sn_name}
                       mApparent={sn!.m_apparent}
                       onFound={() => {
-                        showToast("Candidate flagged — next confirm the type and measure z.");
+                        showToast("Candidate flagged. Next, confirm the type and measure z.");
                         setSubStep(0);
                         setPhase("spectrum");
                       }}
@@ -383,7 +383,7 @@ export function GameExperience() {
                     onZMeasChange={onZMeasFromSpectrum}
                     onLocked={(zMeas) => {
                       setHubbleGuide((g) => ({ ...g, z: zMeas }));
-                      showToast("Type and z confirmed — now use the light curve for distance.");
+                      showToast("Type and z confirmed. Now use the light curve for distance.");
                       setSubStep(0);
                       setPhase("lightcurve");
                     }}
@@ -446,7 +446,7 @@ export function GameExperience() {
             </p>
             {finalChiSn ? (
               <pre className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-800">
-                Final χ² — EdS: {finalChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
+                Final χ², EdS: {finalChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
                 {"\n"}open matter: {finalChiSn.cumchi2_open_matter_after_this_sequence.toFixed(2)}
                 {"\n"}flat ΛCDM: {finalChiSn.cumchi2_flat_LCDM_after_this_sequence.toFixed(2)}
               </pre>
@@ -477,7 +477,7 @@ export function GameExperience() {
       <div className="w-full shrink-0 md:w-[min(440px,38vw)] md:sticky md:top-4">
         {sn && (hubbleGuide.z != null || hubbleGuide.mu != null) ? (
           <div className="font-ui mb-2 rounded-lg border border-stone-200 bg-stone-100/90 p-3 font-mono text-[11px] leading-relaxed text-stone-700">
-            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500">Notebook — this supernova on the diagram</div>
+            <div className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-stone-500">Notebook: this supernova on the diagram</div>
             {hubbleGuide.z != null ? (
               <div>
                 <span className="text-stone-500">x-axis:</span> z<sub>meas</sub> = {hubbleGuide.z.toFixed(4)} → horizontal position on log-scaled z
@@ -520,7 +520,7 @@ export function GameExperience() {
                 className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-50"
                 onClick={() => {
                   setGuessOpen(false);
-                  showToast("Keep going — decelerating models stay low at high z.");
+                  showToast("Keep going. Decelerating models stay low at high z.");
                   if (currentIndex < bundle.supernovae.length) {
                     setHubbleGuide({ z: null, mu: null });
                     setPhase("discovery");
@@ -528,13 +528,13 @@ export function GameExperience() {
                   }
                 }}
               >
-                Ω_m=1, Ω_Λ=0 — rapid deceleration
+                Ω_m=1, Ω_Λ=0: rapid deceleration
               </button>
               <button
                 className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-left text-sm text-stone-800 hover:bg-stone-50"
                 onClick={() => {
                   setGuessOpen(false);
-                  showToast("Still not enough — look at z≳0.3 residuals.");
+                  showToast("Still not enough. Look at z≳0.3 residuals.");
                   if (currentIndex < bundle.supernovae.length) {
                     setHubbleGuide({ z: null, mu: null });
                     setPhase("discovery");
@@ -542,7 +542,7 @@ export function GameExperience() {
                   }
                 }}
               >
-                Ω_m=0.3, Ω_Λ=0 — gentle deceleration
+                Ω_m=0.3, Ω_Λ=0: gentle deceleration
               </button>
               <button
                 className="rounded-lg bg-stone-900 px-3 py-2 text-left text-sm font-semibold text-white hover:bg-stone-800"
@@ -555,7 +555,7 @@ export function GameExperience() {
                   setEndOpen(true);
                 }}
               >
-                Ω_m=0.3, Ω_Λ=0.7 — acceleration / dark energy
+                Ω_m=0.3, Ω_Λ=0.7: acceleration / dark energy
               </button>
             </div>
           </div>

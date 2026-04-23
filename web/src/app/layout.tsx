@@ -15,7 +15,7 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Dark Energy Discovery — Supernova Cosmology Lab",
+  title: "Dark Energy Discovery: Supernova Cosmology Lab",
   description: "Interactive walkthrough of the High-z Supernova Search Team pipeline with precomputed Friedmann curves.",
 };
 

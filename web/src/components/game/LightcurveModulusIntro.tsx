@@ -19,7 +19,7 @@ export function LightcurveModulusIntro({ sn }: Props) {
       <section>
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">1 · Brightness numbers run backwards</h4>
         <p className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
-          In astronomy, <strong className="text-stone-900">magnitude m counts “how bright it looks,” but bigger m means fainter</strong> — the opposite of what feels natural. A star at magnitude 22 is much dimmer than one at magnitude 20. Say that out loud once; everything below assumes you remember it.
+          In astronomy, <strong className="text-stone-900">magnitude m counts “how bright it looks,” but bigger m means fainter</strong>, which is the opposite of what feels natural. A star at magnitude 22 is much dimmer than one at magnitude 20. Say that out loud once; everything below assumes you remember it.
         </p>
       </section>
 
@@ -34,12 +34,12 @@ export function LightcurveModulusIntro({ sn }: Props) {
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">3 · What m, M, and μ mean</h4>
         <ul className="mt-2 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
           <li>
-            <strong className="text-stone-900">m</strong> is <strong className="text-stone-900">apparent</strong> magnitude at the <strong className="text-stone-900">peak only</strong> — one brightness for “how bright did the same explosion look when it was hottest?” The plot will show <strong className="text-stone-900">many dots</strong>: those are <strong className="text-stone-900">many different nights</strong> of watching the <em>same</em> supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
+            <strong className="text-stone-900">m</strong> is <strong className="text-stone-900">apparent</strong> magnitude at the <strong className="text-stone-900">peak only</strong>, one brightness for “how bright did the same explosion look when it was hottest?” The plot will show <strong className="text-stone-900">many dots</strong>: those are <strong className="text-stone-900">many different nights</strong> of watching the <em>same</em> supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
             <span className="font-mono text-stone-900">m = {mStr}</span>).
           </li>
           <li>
-            <strong className="text-stone-900">M</strong> is <strong className="text-stone-900">absolute</strong> magnitude — how bright the same explosion would look if you parked it at a standard distance (10 parsecs). For this walkthrough every Type Ia uses the same fiducial{" "}
-            <span className="font-mono text-stone-900">M = {M_REF}</span> — that is the shared “wattage” of the lightbulb.
+            <strong className="text-stone-900">M</strong> is <strong className="text-stone-900">absolute</strong> magnitude, or how bright the same explosion would look if you parked it at a standard distance (10 parsecs). For this walkthrough every Type Ia uses the same fiducial{" "}
+            <span className="font-mono text-stone-900">M = {M_REF}</span>. That is the shared “wattage” of the lightbulb.
           </li>
           <li>
             The <strong className="text-stone-900">distance modulus</strong>{" "}

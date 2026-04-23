@@ -5,7 +5,7 @@ import { hashString, mulberry32 } from "@/lib/gameMath";
 
 type Props = { snName: string; mApparent: number; onFound: () => void };
 
-/** Matches new-epoch SN fill `rgba(255,230,180,…)` — residual should read as the same light. */
+/** Matches new-epoch SN fill `rgba(255,230,180,…)`, so the residual reads as the same light. */
 const SN_R = 255;
 const SN_G = 230;
 const SN_B = 180;
