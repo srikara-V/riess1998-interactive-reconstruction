@@ -19,7 +19,7 @@ export function LightcurveModulusIntro({ sn }: Props) {
       <section>
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">1 · Brightness numbers run backwards</h4>
         <p className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
-          In astronomy, <strong className="text-stone-900">magnitude m counts “how bright it looks,” but bigger m means fainter</strong>, which is the opposite of what feels natural. A star at magnitude 22 is much dimmer than one at magnitude 20. Say that out loud once; everything below assumes you remember it.
+          In astronomy, <strong className="text-stone-900">magnitude m counts “how bright it looks,” but bigger m means fainter</strong>, which is the opposite of what feels natural. A star at magnitude 22 is much dimmer than one at magnitude 20.
         </p>
       </section>
 
