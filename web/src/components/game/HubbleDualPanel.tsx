@@ -171,8 +171,6 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, showDisco
     if (showDiscoveryHints && observations.length > 10) {
       const zHint = 0.58;
       const xHint = padL + xHubble(zHint, iw);
-      const yOpen = padT + yHubble(interpMuAtZ(curves.open_matter, zHint), ih);
-      const yLCDM = padT + yHubble(interpMuAtZ(curves.flat_LCDM, zHint), ih);
       ctx.save();
       ctx.strokeStyle = "rgba(37, 99, 235, 0.22)";
       ctx.fillStyle = "rgba(37, 99, 235, 0.08)";

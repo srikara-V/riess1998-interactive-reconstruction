@@ -174,7 +174,7 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">How that host-galaxy line becomes a redshift</h4>
         <ol className="mt-3 list-decimal space-y-3 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
           <li>
-            <strong className="text-stone-900">Rest wavelength.</strong> In a lab on Earth, the host galaxy's hydrogen Hα line sits at{" "}
+            <strong className="text-stone-900">Rest wavelength.</strong> In a lab on Earth, the host galaxy&apos;s hydrogen Hα line sits at{" "}
             <span className="font-mono text-stone-800">{HALPHA_REST} Å</span> in the rest frame, so it gives you a fixed ruler for redshift.
           </li>
           <li>
@@ -199,7 +199,7 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
 
       <div className="space-y-3 rounded-xl border border-stone-200 bg-white p-4 shadow-sm md:p-5">
         <p className="text-base text-stone-600 md:text-lg">
-          Drag the vertical line to the <strong className="text-stone-900">host galaxy's Hα emission spike</strong> (compare to your table after locking).
+          Drag the vertical line to the <strong className="text-stone-900">host galaxy&apos;s Hα emission spike</strong> (compare to your table after locking).
         </p>
         <canvas
           ref={canvasRef}
