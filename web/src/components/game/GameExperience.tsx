@@ -14,6 +14,13 @@ import { SpectrumHalphaDiagram } from "./SpectrumHalphaDiagram";
 import { SpectrumInteractive } from "./SpectrumInteractive";
 
 type Phase = "welcome" | "discovery" | "spectrum" | "lightcurve" | "reveal";
+
+const PIPELINE_STEPS = [
+  { key: "discovery", label: "Finding the supernova in discovery images", detail: "Flag the transient in a difference image." },
+  { key: "spectrum", label: "Measuring the redshift from the host-galaxy spectrum", detail: "Verify Type Ia and read the redshift." },
+  { key: "lightcurve", label: "Finding the distance modulus from the light curve", detail: "Standardize the candle and infer distance." },
+] as const;
+
 export function GameExperience() {
   const [bundle, setBundle] = useState<GameBundle | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -209,6 +216,9 @@ export function GameExperience() {
     currentIndex < bundle.supernovae.length &&
     !(phase === "discovery" && subStep < 1);
 
+  const pipelineStepIndex =
+    phase === "discovery" ? 0 : phase === "spectrum" ? 1 : phase === "lightcurve" || phase === "reveal" ? 2 : -1;
+
   return (
     <div className="mx-auto max-w-[1400px] px-3 pb-16 pt-6 md:px-6">
       {canFastForward ? (
@@ -221,6 +231,33 @@ export function GameExperience() {
             Plot all remaining points
           </button>
         </div>
+      ) : null}
+      {phase !== "welcome" ? (
+        <section className="mb-4">
+          <div className="grid grid-cols-3 gap-2">
+            {PIPELINE_STEPS.map((step, index) => {
+              const state = index < pipelineStepIndex ? "done" : index === pipelineStepIndex ? "active" : "upcoming";
+              return (
+                <div key={step.key} className="space-y-2">
+                  <div
+                    className={[
+                      "h-1.5 rounded-full transition-colors",
+                      state === "active" ? "bg-stone-900" : state === "done" ? "bg-emerald-500" : "bg-stone-200",
+                    ].join(" ")}
+                  />
+                  <p
+                    className={[
+                      "font-ui text-[11px] uppercase tracking-[0.16em] transition-colors",
+                      state === "active" ? "font-semibold text-stone-900" : state === "done" ? "text-emerald-700" : "text-stone-400",
+                    ].join(" ")}
+                  >
+                    {step.label}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       ) : null}
       <div className="flex flex-col gap-4 md:flex-row md:items-start">
       {/* Narrative + interaction */}
@@ -261,7 +298,7 @@ export function GameExperience() {
                 </h2>
               </div>
               <p className="text-right text-sm text-stone-600">
-                Object <span className="font-mono text-stone-900">{sn?.sn_name ?? "—"}</span>
+                Case file <span className="font-mono text-stone-900">{sn?.sn_name ?? "—"}</span>
                 <span className="block text-xs text-stone-500">
                   {currentIndex + 1} / {bundle.supernovae.length}
                 </span>
@@ -292,7 +329,7 @@ export function GameExperience() {
                       snName={sn!.sn_name}
                       mApparent={sn!.m_apparent}
                       onFound={() => {
-                        showToast("Transient confirmed — queue spectrum.");
+                        showToast("Candidate flagged — next confirm the type and measure z.");
                         setSubStep(0);
                         setPhase("spectrum");
                       }}
@@ -346,7 +383,7 @@ export function GameExperience() {
                     onZMeasChange={onZMeasFromSpectrum}
                     onLocked={(zMeas) => {
                       setHubbleGuide((g) => ({ ...g, z: zMeas }));
-                      showToast("z recorded — begin light curve monitoring.");
+                      showToast("Type and z confirmed — now use the light curve for distance.");
                       setSubStep(0);
                       setPhase("lightcurve");
                     }}
@@ -393,9 +430,36 @@ export function GameExperience() {
             ) : null}
 
             {phase === "reveal" ? (
-              <p className="text-sm text-stone-600">Plotting precomputed μ_obs vs z_obs with error bars…</p>
+              <p className="text-sm text-stone-600">
+                {endOpen ? "The full precomputed sample is now on the Hubble diagram." : "Plotting precomputed μ_obs vs z_obs with error bars…"}
+              </p>
             ) : null}
         </section>
+        ) : null}
+
+        {endOpen ? (
+          <section className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
+            <h3 className="text-xl font-semibold text-stone-900">What they found was neither…</h3>
+            <p className="mt-3 text-sm leading-relaxed text-stone-600">
+              The distant supernovae are dimmer than either decelerating curve predicts at high redshift, so they are farther away than those models expect. Together with a matter
+              density Ω_m≈0.3 from large-scale structure, a cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
+            </p>
+            {finalChiSn ? (
+              <pre className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-800">
+                Final χ² — EdS: {finalChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
+                {"\n"}open matter: {finalChiSn.cumchi2_open_matter_after_this_sequence.toFixed(2)}
+                {"\n"}flat ΛCDM: {finalChiSn.cumchi2_flat_LCDM_after_this_sequence.toFixed(2)}
+              </pre>
+            ) : null}
+            <p className="mt-2 text-xs text-stone-500">{endReason}</p>
+            <button
+              type="button"
+              className="mt-6 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+              onClick={() => location.reload()}
+            >
+              Play again
+            </button>
+          </section>
         ) : null}
 
         {guessPrompted ? (
@@ -434,6 +498,7 @@ export function GameExperience() {
           curves={bundle.curves}
           observations={observations}
           highlightLCDM={highlightLCDM}
+          showDiscoveryHints={endOpen}
           previewZ={hubbleGuide.z}
           previewMu={hubbleGuide.mu}
         />
@@ -493,33 +558,6 @@ export function GameExperience() {
                 Ω_m=0.3, Ω_Λ=0.7 — acceleration / dark energy
               </button>
             </div>
-          </div>
-        </div>
-      ) : null}
-
-      {endOpen ? (
-        <div className="font-ui fixed inset-0 z-50 flex items-center justify-center bg-stone-900/45 p-4 backdrop-blur-[2px]">
-          <div className="max-w-lg rounded-2xl border border-stone-200 bg-white p-6 shadow-xl">
-            <h3 className="text-xl font-semibold text-stone-900">What they found was neither…</h3>
-            <p className="mt-3 text-sm leading-relaxed text-stone-600">
-              The distant supernovae are dimmer than either decelerating curve predicts at high redshift, so they are farther away than those models expect. Together with a matter
-              density Ω_m≈0.3 from large-scale structure, a cosmological constant Ω_Λ≈0.7 completes the story: spatially flat, currently accelerating expansion.
-            </p>
-            {finalChiSn ? (
-              <pre className="mt-4 rounded-lg border border-stone-200 bg-stone-50 p-3 text-[11px] text-stone-800">
-                Final χ² — EdS: {finalChiSn.cumchi2_EdS_after_this_sequence.toFixed(2)}
-                {"\n"}open matter: {finalChiSn.cumchi2_open_matter_after_this_sequence.toFixed(2)}
-                {"\n"}flat ΛCDM: {finalChiSn.cumchi2_flat_LCDM_after_this_sequence.toFixed(2)}
-              </pre>
-            ) : null}
-            <p className="mt-2 text-xs text-stone-500">{endReason}</p>
-            <button
-              type="button"
-              className="mt-6 rounded-lg bg-stone-900 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
-              onClick={() => location.reload()}
-            >
-              Play again
-            </button>
           </div>
         </div>
       ) : null}

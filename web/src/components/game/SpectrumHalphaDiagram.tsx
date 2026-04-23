@@ -1,8 +1,8 @@
 "use client";
 
-/** Schematic λ axis (Å) for pedagogy — matches game template range. */
+/** Schematic λ axis (Å) for pedagogy — roughly matching the observed optical window. */
 const LAM_MIN = 5000;
-const LAM_MAX = 11000;
+const LAM_MAX = 10000;
 const PLOT_X0 = 56;
 const PLOT_X1 = 464;
 const PLOT_H = 52;
@@ -46,7 +46,7 @@ export function SpectrumHalphaDiagram() {
   return (
     <figure className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm">
       <figcaption className="mb-4 text-center text-base font-semibold text-stone-900 md:text-lg">
-        Hydrogen Hα — a bright emission line astronomers use as a ruler
+        Host-galaxy Hα — a bright emission line astronomers use as a ruler
       </figcaption>
       <svg viewBox="0 0 520 240" className="mx-auto h-auto w-full max-w-[520px]" role="img" aria-label="Schematic Hα spectrum at rest and redshifted">
         <defs>
@@ -80,7 +80,7 @@ export function SpectrumHalphaDiagram() {
         </text>
 
         <text x="12" y="152" fill="rgb(28,25,23)" style={{ font: "bold 11px var(--font-source-sans), sans-serif" }}>
-          Telescope (redshifted)
+          Telescope (host galaxy, redshifted)
         </text>
         <path
           d={`${obsPath} L ${PLOT_X1} ${Y_BASE_OBS} L ${PLOT_X0} ${Y_BASE_OBS} Z`}

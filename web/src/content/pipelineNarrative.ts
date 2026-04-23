@@ -4,7 +4,7 @@ export const WELCOME = {
   title: "How the High-z team measured the universe",
   body: [
     "In the 1990s, the High-z Supernova Search Team (Harvard / CfA–led, with partners worldwide) hunted distant Type Ia supernovae. Each object had to be discovered, confirmed, followed photometrically, and tied to a redshift before it became one point on a Hubble diagram.",
-    "This walkthrough follows that real pipeline. The heavy numerics (Friedmann distances, noise draws, χ²) are already in your precomputed CSVs; here you replay the scientific story step by step.",
+    "This walkthrough follows that real pipeline one candidate at a time: discovery flags a transient, spectroscopy confirms the explosion type and gives a redshift, photometry standardizes the candle, and only then do you get a distance point on the Hubble diagram.",
   ],
 };
 
@@ -26,7 +26,9 @@ export const DISCOVERY = [
       "Subtract template from new epoch so the static stars and galaxies mostly cancel away.",
       "What remains is the residual map: anything that changed between the two visits.",
       "Confirm the transient on that residual map, not by hunting the field in the new image alone.",
+      "This step protects the distance ladder: if you flag the wrong source here, every later redshift and brightness measurement belongs to the wrong object.",
       "Once the clean point source is marked, the team would queue spectroscopy and multi-color follow-up.",
+      "Now that you have a candidate, the next question is: how do you know it is really a Type Ia supernova and not something else?",
       "(Position is seeded from the supernova name so each object feels distinct.)",
     ],
   },
@@ -35,15 +37,15 @@ export const DISCOVERY = [
 export const SPECTRUM = [
   {
     title: "1 · Why take a spectrum?",
-    body: "Pictures from a telescope can tell you that something got brighter — but not whether it was a real supernova, a star in our own galaxy, or something else pretending to be one. A spectrum spreads the object’s light into a rainbow and reveals fingerprints of atoms and molecules. That fingerprint is how teams proved they had the right kind of explosion and how they read off a distance-related redshift.",
+    body: "Pictures from a telescope can tell you that something got brighter — but not whether it was a real supernova, a star in our own galaxy, or something else pretending to be one. A spectrum spreads the object's light into a rainbow and reveals fingerprints of atoms and molecules. In the original surveys, the supernova spectrum was most important for classification and age-dating, while narrow host-galaxy lines often supplied the cleanest redshift. Without this check, you could standardize the wrong kind of object and poison the distance estimate before it even reaches the Hubble diagram.",
   },
   {
     title: "2 · Hydrogen as a built-in ruler",
-    body: "Hydrogen gas in the host galaxy glows at a known wavelength — 6563 Å (Hα) — when observed nearby. When the galaxy is receding, that glow is stretched to longer wavelengths along with the rest of the spectrum. Measuring how far the emission peak shifted gives you z — which you need before you can compare brightness to distance honestly.",
+    body: "Hydrogen gas in the host galaxy glows at a known wavelength — 6563 Å (Hα) — when observed nearby. When the galaxy is receding, that glow is stretched to longer wavelengths along with the rest of the spectrum. Measuring how far the emission peak shifted gives you z — which you need before you can compare brightness to distance honestly. But redshift only tells you where the object sits along the expansion axis, not how far away it is by itself.",
   },
   {
     title: "3 · Lock when the match looks right",
-    body: "In the next tool, drag the vertical marker to the peak of the Hα emission spike you trust. If you are within about 20 ångströms of the value in your table, you can lock. The game still uses the survey’s precomputed redshift for the final Hubble point so the numbers stay consistent with your course CSVs.",
+    body: "In the next tool, drag the vertical marker to the host galaxy's Hα emission spike. If you are within about 20 ångströms of the value in your table, you can lock. The game still uses the survey’s precomputed redshift for the final Hubble point so the numbers stay consistent with your course CSVs. Once the type is confirmed and z is in hand, the missing ingredient is the independent distance estimate that comes from the light curve.",
   },
 ];
 
@@ -57,11 +59,12 @@ export const LIGHTCURVE = [
       "Vertical position is how bright it looked that night.",
       "Together the dots trace one rise and fall.",
       "The single number m you care about for distance is only the brightness at the very top of that bump (around day 0), not every dot's magnitude.",
+      "This is the step that turns \"we know what it is and how redshifted it is\" into \"we can estimate how far away it must be.\"",
     ],
   },
   {
     title: "2 · From “how faint it looks” to distance",
-    body: "Before you touch the plot, read the box below. It builds the whole chain in plain language: why magnitude feels backwards, why Type Ia events act like matched lightbulbs, what m, M, and μ are, and the exact numbers for this supernova so you see where the Hubble y-axis comes from.",
+    body: "Before you touch the plot, read the box below. It builds the whole chain in plain language: why magnitude feels backwards, why Type Ia events act like matched lightbulbs, what m, M, and μ are, and the exact numbers for this supernova so you see where the Hubble y-axis comes from. If this standardization step is off, the inferred distance is off too, even if the redshift was measured perfectly.",
   },
   {
     title: "3 · Add the point to the Hubble diagram",
@@ -70,6 +73,7 @@ export const LIGHTCURVE = [
       "The Hubble diagram needs one peak m and one redshift per object.",
       "After you finish this object, the game drops a point using the survey’s full reduction (z_obs, μ_obs).",
       "The dark-energy result comes from comparing many such points to different cosmological curves, not from any single supernova.",
+      "This is the payoff for the whole chain: discovery found the candidate, spectroscopy gave z, photometry gave μ, and together they become one distance measurement of the expanding universe.",
     ],
   },
 ];

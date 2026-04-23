@@ -17,6 +17,7 @@ type Props = {
   curves: GameBundle["curves"];
   observations: Observation[];
   highlightLCDM: boolean;
+  showDiscoveryHints?: boolean;
   /** From spectrum: z_meas = λ_obs / λ_rest − 1 (guides x-axis). */
   previewZ: number | null;
   /** From light curve: μ ≈ m_peak − M (guides y-axis). */
@@ -39,7 +40,7 @@ function setupCanvas(canvas: HTMLCanvasElement, cssH: number) {
   return { ctx, w: cssW, h: cssH, dpr };
 }
 
-export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ, previewMu }: Props) {
+export function HubbleDualPanel({ curves, observations, highlightLCDM, showDiscoveryHints = false, previewZ, previewMu }: Props) {
   const refH = useRef<HTMLCanvasElement>(null);
   const refR = useRef<HTMLCanvasElement>(null);
 
@@ -166,7 +167,23 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     ctx.fillText("μ (distance modulus)", padL, padT - 2);
     ctx.textAlign = "center";
     ctx.fillText(`redshift z (log ${Z_AXIS.min}–${Z_AXIS.max})`, padL + iw / 2, h - 6);
-  }, [curves, observations, highlightLCDM, previewZ, previewMu]);
+
+    if (showDiscoveryHints && observations.length > 10) {
+      const zHint = 0.58;
+      const xHint = padL + xHubble(zHint, iw);
+      const yOpen = padT + yHubble(interpMuAtZ(curves.open_matter, zHint), ih);
+      const yLCDM = padT + yHubble(interpMuAtZ(curves.flat_LCDM, zHint), ih);
+      ctx.save();
+      ctx.strokeStyle = "rgba(37, 99, 235, 0.22)";
+      ctx.fillStyle = "rgba(37, 99, 235, 0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.rect(xHint - 22, padT, 110, ih);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }, [curves, observations, highlightLCDM, previewZ, previewMu, showDiscoveryHints]);
 
   useEffect(() => {
     const canvas = refR.current;
@@ -276,7 +293,21 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
     ctx.font = "10px system-ui";
     ctx.textAlign = "left";
     ctx.fillText("Δμ vs open matter", padL, padT - 2);
-  }, [curves, observations, highlightLCDM, previewZ, previewResidual]);
+
+    if (showDiscoveryHints && observations.length > 10) {
+      const zHint = 0.55;
+      const xHint = padL + xHubble(zHint, iw);
+      ctx.save();
+      ctx.strokeStyle = "rgba(16, 185, 129, 0.22)";
+      ctx.fillStyle = "rgba(16, 185, 129, 0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.rect(xHint - 20, padT, 105, ih);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+  }, [curves, observations, highlightLCDM, previewZ, previewResidual, showDiscoveryHints]);
 
   const showPreviewNote = previewZ != null || previewMu != null;
 
@@ -293,6 +324,11 @@ export function HubbleDualPanel({ curves, observations, highlightLCDM, previewZ,
       <canvas ref={refH} className="h-[280px] w-full rounded-lg border border-stone-200/80 bg-[#f0eeeb]" />
       <div className="text-[10px] font-semibold uppercase tracking-widest text-stone-500">Residuals vs Ω_m=0.3, Ω_Λ=0</div>
       <canvas ref={refR} className="h-[160px] w-full rounded-lg border border-stone-200/80 bg-[#f0eeeb]" />
+      {showDiscoveryHints ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-[12px] leading-relaxed text-stone-700">
+          Read the two panels together: at high redshift, the supernovae sit above the open-matter prediction in the top plot, and in the residual plot many points lie above `Δμ = 0`. That means the supernovae are dimmer, hence farther away, than a decelerating universe would predict.
+        </div>
+      ) : null}
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-stone-600">
         <span className="inline-flex items-center gap-1">
           <span className="h-0.5 w-3 rounded bg-[#c2410c]" /> EdS
