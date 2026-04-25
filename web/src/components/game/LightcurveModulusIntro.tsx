@@ -19,14 +19,14 @@ export function LightcurveModulusIntro({ sn }: Props) {
       <section>
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">1 · Brightness numbers run backwards</h4>
         <p className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
-          In astronomy, <strong className="text-stone-900">magnitude m counts “how bright it looks,” but bigger m means fainter</strong>, which is the opposite of what feels natural. A star at magnitude 22 is much dimmer than one at magnitude 20.
+          In astronomy, magnitude m counts "how bright it looks," but bigger m means fainter. A star at magnitude 22 is much dimmer than one at magnitude 20.
         </p>
       </section>
 
       <section>
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">2 · Type Ia supernovae are “identical lightbulbs”</h4>
         <p className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
-          Picture two lightbulbs of the <em>same</em> wattage. If one looks brighter, it can only be because it is <strong className="text-stone-900">closer</strong>. Type Ia explosions are used the same way: they are treated as having the same intrinsic power (after the standardization story you already heard in broad terms). So once you trust the type, <strong className="text-stone-900">how faint it appears in your telescope is mostly telling you distance</strong>.
+          Picture two lightbulbs of the same wattage. If one looks brighter, it can only be because it is closer. Type Ia explosions are used the same way: they are treated as having the same intrinsic power. So once you know the type, how faint it appears in your telescope is mostly telling you distance.
         </p>
       </section>
 
@@ -34,32 +34,19 @@ export function LightcurveModulusIntro({ sn }: Props) {
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">3 · What m, M, and μ mean</h4>
         <ul className="mt-2 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
           <li>
-            <strong className="text-stone-900">m</strong> is <strong className="text-stone-900">apparent</strong> magnitude at the <strong className="text-stone-900">peak only</strong>, one brightness for “how bright did the same explosion look when it was hottest?” The plot will show <strong className="text-stone-900">many dots</strong>: those are <strong className="text-stone-900">many different nights</strong> of watching the <em>same</em> supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
+            <span className="font-mono text-stone-800">m</span> is apparent magnitude at the peak only, one brightness for "how bright did the same explosion look when it was hottest?" The plot will show many dots: those are many different nights of watching the same supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
             <span className="font-mono text-stone-900">m = {mStr}</span>).
           </li>
           <li>
-            <strong className="text-stone-900">M</strong> is <strong className="text-stone-900">absolute</strong> magnitude, or how bright the same explosion would look if you parked it at a standard distance (10 parsecs). For this walkthrough every Type Ia uses the same fiducial{" "}
+            <span className="font-mono text-stone-800">M</span> is absolute magnitude, or how bright the same explosion would look if you parked it at a standard distance (10 parsecs). For this walkthrough every Type Ia uses the same fiducial{" "}
             <span className="font-mono text-stone-900">M = {M_REF}</span>. That is the shared “wattage” of the lightbulb.
           </li>
           <li>
-            The <strong className="text-stone-900">distance modulus</strong>{" "}
+            The distance modulus{" "}
             <span className="font-mono text-stone-800">μ = m − M</span> is just the gap between those two: how much fainter it is than it would be up close.{" "}
-            <strong className="text-stone-900">Larger μ means farther away</strong> (more dimming from distance).
+            Larger μ means farther away (more dimming from distance).
           </li>
         </ul>
-      </section>
-
-      <section className="rounded-lg border border-stone-200 bg-stone-50 p-4 md:p-5">
-        <h4 className="text-base font-semibold text-stone-900 md:text-lg">4 · Punchline for this object ({sn.sn_name})</h4>
-        <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">
-          Using the peak apparent magnitude from the survey row and the standard absolute magnitude:
-        </p>
-        <p className="mt-3 font-mono text-lg text-stone-900 md:text-xl">
-          μ = m − M = {mStr} − ({M_REF}) = {muStr}
-        </p>
-        <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">
-          That <span className="font-mono text-stone-900">μ ≈ {muStr}</span> is what belongs on the <strong className="text-stone-900">vertical axis</strong> of the Hubble diagram once combined with the redshift you measured earlier. Open the light-curve tool when you are ready to see the noisy points and template that lead to the same peak <span className="font-mono text-stone-800">m</span>.
-        </p>
       </section>
     </div>
   );

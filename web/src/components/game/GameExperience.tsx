@@ -9,7 +9,6 @@ import { DiscoveryInteractive } from "./DiscoveryInteractive";
 import { HubbleDualPanel } from "./HubbleDualPanel";
 import { LightcurveInteractive } from "./LightcurveInteractive";
 import { LightcurveModulusIntro } from "./LightcurveModulusIntro";
-import { PsfMatchingAnimation } from "./PsfMatchingAnimation";
 import { SpectrumHalphaDiagram } from "./SpectrumHalphaDiagram";
 import { SpectrumInteractive } from "./SpectrumInteractive";
 
@@ -218,6 +217,7 @@ export function GameExperience() {
 
   const pipelineStepIndex =
     phase === "discovery" ? 0 : phase === "spectrum" ? 1 : phase === "lightcurve" || phase === "reveal" ? 2 : -1;
+  const spectrumNarrativeStep = SPECTRUM[Math.min(subStep, SPECTRUM.length - 1)];
 
   return (
     <div className="mx-auto max-w-[1400px] px-3 pb-16 pt-6 md:px-6">
@@ -293,7 +293,7 @@ export function GameExperience() {
                 <h2 className="mt-1 text-lg font-semibold text-stone-900 md:text-xl">
                   {phase === "discovery" && "Discovery: difference imaging"}
                   {phase === "spectrum" && "Spectroscopy: redshift from features"}
-                  {phase === "lightcurve" && "Photometry: standardizing the candle"}
+                  {phase === "lightcurve" && "Measuring peak apparent magnitude"}
                   {phase === "reveal" && "Hubble diagram update"}
                 </h2>
               </div>
@@ -311,19 +311,12 @@ export function GameExperience() {
                   <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
                     <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[0].title}</h3>
                     {renderDiscoveryBody(DISCOVERY[0].body)}
-                    <div className="mt-6 border-t border-stone-200 pt-6">
-                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
-                      {renderDiscoveryBody(DISCOVERY[1].body)}
-                      <div className="mt-5">
-                        <PsfMatchingAnimation />
-                      </div>
-                    </div>
                   </article>
                 ) : (
                   <>
                     <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
-                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[2].title}</h3>
-                      {renderDiscoveryBody(DISCOVERY[2].body)}
+                      <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{DISCOVERY[1].title}</h3>
+                      {renderDiscoveryBody(DISCOVERY[1].body)}
                     </article>
                     <DiscoveryInteractive
                       snName={sn!.sn_name}
@@ -353,8 +346,8 @@ export function GameExperience() {
             {phase === "spectrum" ? (
               <div className="space-y-4">
                 <article className="rounded-xl border border-stone-100 bg-stone-50/80 p-5 md:p-6">
-                  <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{SPECTRUM[subStep].title}</h3>
-                  <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{SPECTRUM[subStep].body}</p>
+                  <h3 className="text-lg font-semibold leading-snug text-stone-900 md:text-xl">{spectrumNarrativeStep.title}</h3>
+                  <p className="mt-3 text-base leading-relaxed text-stone-600 md:text-lg">{spectrumNarrativeStep.body}</p>
                 </article>
                 {subStep === 1 ? <SpectrumHalphaDiagram /> : null}
                 {subStep === 0 ? (

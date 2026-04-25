@@ -181,7 +181,7 @@ export function LightcurveInteractive({ sn, lcTemplate, onPeakRead, onContinue }
             <strong className="text-stone-900">What the full set of dots shows:</strong> together they sketch one object brightening toward a peak and then fading.
           </li>
           <li>
-            <strong className="text-stone-900">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-stone-800">m</span> at the <strong>peak</strong> (around day 0), not every dot on the curve.
+            <strong className="text-stone-900">What you extract for distance:</strong> a <strong>single</strong> apparent magnitude <span className="font-mono text-stone-800">m</span> at the <strong>peak</strong> (around day 0).
           </li>
           <li>
             <strong className="text-stone-900">What the orange dot means:</strong> after you fit the blue template, it marks the peak that feeds <span className="font-mono text-stone-800">μ = m − M</span>.
