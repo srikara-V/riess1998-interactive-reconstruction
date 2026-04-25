@@ -12,14 +12,13 @@ export function LightcurveModulusIntro({ sn }: Props) {
   const m = sn.m_apparent;
   const mu = m - M_REF;
   const mStr = m.toFixed(2);
-  const muStr = mu.toFixed(2);
 
   return (
     <div className="space-y-5 rounded-xl border border-stone-200 bg-white p-5 shadow-sm md:p-6">
       <section>
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">1 · Brightness numbers run backwards</h4>
         <p className="mt-2 text-base leading-relaxed text-stone-600 md:text-lg">
-          In astronomy, magnitude m counts "how bright it looks," but bigger m means fainter. A star at magnitude 22 is much dimmer than one at magnitude 20.
+          In astronomy, magnitude m counts &quot;how bright it looks,&quot; but bigger m means fainter. A star at magnitude 22 is much dimmer than one at magnitude 20.
         </p>
       </section>
 
@@ -34,7 +33,7 @@ export function LightcurveModulusIntro({ sn }: Props) {
         <h4 className="text-base font-semibold text-stone-900 md:text-lg">3 · What m, M, and μ mean</h4>
         <ul className="mt-2 list-disc space-y-2 pl-5 text-base leading-relaxed text-stone-600 md:text-lg">
           <li>
-            <span className="font-mono text-stone-800">m</span> is apparent magnitude at the peak only, one brightness for "how bright did the same explosion look when it was hottest?" The plot will show many dots: those are many different nights of watching the same supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
+            <span className="font-mono text-stone-800">m</span> is apparent magnitude at the peak only, one brightness for &quot;how bright did the same explosion look when it was hottest?&quot; The plot will show many dots: those are many different nights of watching the same supernova so you can see the full rise and fall and fit a template. Only the peak night supplies the m that enters <span className="font-mono text-stone-800">μ = m − M</span> (here the table already lists that peak as{" "}
             <span className="font-mono text-stone-900">m = {mStr}</span>).
           </li>
           <li>
