@@ -10,7 +10,6 @@ type Props = { sn: SupernovaRow };
  */
 export function LightcurveModulusIntro({ sn }: Props) {
   const m = sn.m_apparent;
-  const mu = m - M_REF;
   const mStr = m.toFixed(2);
 
   return (
