@@ -24,6 +24,7 @@ const PLOT_WINDOW_WIDTH = 2200;
 export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   const pts = useMemo(() => {
     const rng = mulberry32(hashString(sn.sn_name + "spec"));
@@ -50,6 +51,12 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
   useEffect(() => {
     setLineLambda(mid);
   }, [mid]);
+
+  useEffect(() => {
+    setShowHint(false);
+    const timeout = window.setTimeout(() => setShowHint(true), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [sn.sn_name]);
 
   const zMeas = lineLambda / HALPHA_REST - 1;
   const stretch = lineLambda / HALPHA_REST;
@@ -201,22 +208,41 @@ export function SpectrumInteractive({ sn, specTemplate, onLocked, onZMeasChange 
         <p className="text-base text-stone-600 md:text-lg">
           Drag the vertical line to the <strong className="text-stone-900">host galaxy&apos;s Hα emission spike</strong> (compare to your table after locking).
         </p>
-        <canvas
-          ref={canvasRef}
-          width={640}
-          height={220}
-          className="w-full max-w-[640px] touch-none rounded-lg border border-stone-200 bg-[#f0eeeb]"
-          onPointerDown={(e) => {
-            setDragging(true);
-            (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
-            setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
-          }}
-          onPointerMove={(e) => {
-            if (!dragging) return;
-            setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
-          }}
-          onPointerUp={() => setDragging(false)}
-        />
+        <div className="relative w-full max-w-[640px]">
+          <canvas
+            ref={canvasRef}
+            width={640}
+            height={220}
+            className="w-full max-w-[640px] touch-none rounded-lg border border-stone-200 bg-[#f0eeeb]"
+            onPointerDown={(e) => {
+              setDragging(true);
+              setShowHint(false);
+              (e.target as HTMLCanvasElement).setPointerCapture(e.pointerId);
+              setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
+            }}
+            onPointerMove={(e) => {
+              if (!dragging) return;
+              setLineLambda(Math.min(lamMax, Math.max(lamMin, lambdaFromClientX(e.clientX))));
+            }}
+            onPointerUp={() => setDragging(false)}
+          />
+          {showHint ? (
+            <div
+              className="pointer-events-none absolute z-10 h-16 w-24 animate-pulse text-stone-400 transition-opacity duration-500"
+              style={{
+                left: `${((lineLambda - lamMin) / (lamMax - lamMin || 1)) * 100}%`,
+                top: "56px",
+                transform: "translate(-108px, -18px)",
+              }}
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 96 64" className="h-full w-full overflow-visible">
+                <path d="M10 30 C 28 30, 46 30, 74 30" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M64 22 L74 30 L64 38" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          ) : null}
+        </div>
         <p className="text-base text-stone-700 md:text-lg">
           Host-galaxy line you marked: <span className="font-mono text-stone-900">{lineLambda.toFixed(1)} Å</span> in the observed frame. That implies z<sub>meas</sub> ={" "}
           <span className="font-mono text-stone-900">{zMeas.toFixed(4)}</span>. The <strong className="text-stone-900">vertical guide</strong> on the Hubble panel tracks this z. After you lock, the final dot still uses the survey’s z<sub>obs</sub> ={" "}

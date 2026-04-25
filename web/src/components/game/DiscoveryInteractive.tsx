@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { hashString, mulberry32 } from "@/lib/gameMath";
 
 type Props = { snName: string; mApparent: number; onFound: () => void };
@@ -38,6 +38,7 @@ export function DiscoveryInteractive({ snName, mApparent, onFound }: Props) {
   const templateRef = useRef<HTMLCanvasElement>(null);
   const newRef = useRef<HTMLCanvasElement>(null);
   const diffRef = useRef<HTMLCanvasElement>(null);
+  const [showHint, setShowHint] = useState(false);
 
   const geo = useMemo(() => {
     const W = 320;
@@ -57,6 +58,12 @@ export function DiscoveryInteractive({ snName, mApparent, onFound }: Props) {
   }, [snName]);
 
   const snVis = useMemo(() => discoverySnVisual(mApparent), [mApparent]);
+
+  useEffect(() => {
+    setShowHint(false);
+    const timeout = window.setTimeout(() => setShowHint(true), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [snName]);
 
   useLayoutEffect(() => {
     const { w, h, stars, nx, ny, hostCx, hostCy, ringR, dipSign } = geo;
@@ -206,19 +213,37 @@ export function DiscoveryInteractive({ snName, mApparent, onFound }: Props) {
       <div className="text-center">
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-amber-900">Difference</h3>
         <p className="mb-1 text-[10px] leading-tight text-stone-500">new − template (residual)</p>
-        <canvas
-          ref={diffRef}
-          width={geo.w}
-          height={geo.h}
-          className="mx-auto w-full max-w-[360px] cursor-crosshair rounded-lg border border-amber-700/35 bg-black shadow-sm"
-          onClick={(ev) => {
-            const c = ev.currentTarget;
-            const rect = c.getBoundingClientRect();
-            const sx = ((ev.clientX - rect.left) / rect.width) * geo.w;
-            const sy = ((ev.clientY - rect.top) / rect.height) * geo.h;
-            if (Math.hypot(sx - geo.nx, sy - geo.ny) < snVis.clickSlop) onFound();
-          }}
-        />
+        <div className="relative mx-auto w-full max-w-[360px]">
+          <canvas
+            ref={diffRef}
+            width={geo.w}
+            height={geo.h}
+            className="mx-auto w-full max-w-[360px] cursor-crosshair rounded-lg border border-amber-700/35 bg-black shadow-sm"
+            onClick={(ev) => {
+              const c = ev.currentTarget;
+              const rect = c.getBoundingClientRect();
+              const sx = ((ev.clientX - rect.left) / rect.width) * geo.w;
+              const sy = ((ev.clientY - rect.top) / rect.height) * geo.h;
+              if (Math.hypot(sx - geo.nx, sy - geo.ny) < snVis.clickSlop) onFound();
+            }}
+          />
+          {showHint ? (
+            <div
+              className="pointer-events-none absolute z-10 h-16 w-24 animate-pulse text-stone-300/80 transition-opacity duration-500"
+              style={{
+                left: `${(geo.nx / geo.w) * 100}%`,
+                top: `${(geo.ny / geo.h) * 100}%`,
+                transform: "translate(-84px, -64px)",
+              }}
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 96 64" className="h-full w-full overflow-visible">
+                <path d="M10 10 C 30 16, 50 28, 74 50" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M64 45 L74 50 L67 58" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
